@@ -1,13 +1,19 @@
 package net.plzpoint.kgshmaster.Fragment
 
-import android.support.v7.app.AppCompatActivity
+import android.app.Fragment
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import net.plzpoint.kgshmaster.R
 
-class ChatFragment : AppCompatActivity() {
+class ChatFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat_fragment)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater?.inflate(R.layout.activity_chat_fragment, container, false);
     }
 }
