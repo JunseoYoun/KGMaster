@@ -1,36 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/kg_meal"
+            android:icon="@mipmap/cutlery"
+            android:title="게임고 급식" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/kg_talk"
+            android:icon="@mipmap/chat"
+            android:title="게임고 챗팅" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/kg_notification"
+            android:icon="@mipmap/bell"
+            android:title="게임고 공지" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/kg_news"
+            android:icon="@mipmap/newspaper"
+            android:title="게임고 뉴스" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/Setting">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/kg_setting"
+                android:icon="@mipmap/settings"
+                android:title="설정" />
         </menu>
     </item>
-
 </menu>

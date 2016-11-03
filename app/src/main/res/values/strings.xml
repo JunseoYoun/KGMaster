@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">KGMaster</string>
+    <string name="app_name">게임고 마스터</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="Setting">설정</string>
 </resources>
