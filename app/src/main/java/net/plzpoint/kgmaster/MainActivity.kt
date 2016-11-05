@@ -15,6 +15,8 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import net.plzpoint.kgmaster.Fragment.ChatFragment
+import net.plzpoint.kgmaster.Fragment.MealFragment
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 

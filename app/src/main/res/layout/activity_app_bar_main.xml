@@ -18,5 +18,5 @@
         android:textSize="20dp"
         android:text="KG MASTER"/>
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/activity_content_main" />
 </android.support.design.widget.CoordinatorLayout>
