@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -12,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="20dp"
         android:paddingTop="20dp">
 
         <ImageView
@@ -25,13 +25,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:id="@+id/kg_profile_nick"
+            android:textSize="20dp"
             android:text="NICK"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:id="@+id/kg_profile_comment"
-            android:text="한마디"/>
+            android:text="제가 바로 개발자 입니다. ^^"/>
     </LinearLayout>
 </LinearLayout>

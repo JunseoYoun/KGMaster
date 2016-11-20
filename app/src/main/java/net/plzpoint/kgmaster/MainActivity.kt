@@ -30,6 +30,7 @@ import android.widget.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.pawegio.kandroid.find
+import kotlinx.android.synthetic.main.activity_nav_header.*
 import net.plzpoint.kgmaster.Fragment.ChatFragment
 import net.plzpoint.kgmaster.Fragment.MealFragment
 import net.plzpoint.kgmaster.Fragment.NewsFragment
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // ----------------------------------- Profile Image
         profileImage = navigationHead?.findViewById(R.id.kg_profile_image) as ImageView
-        profileImage?.setImageResource(R.mipmap.bell)
+        Glide.with(this).load(R.drawable.kg_basic_profile_img).bitmapTransform(CircleTransform(applicationContext)).into(profileImage)
         profileImage?.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 imageSelection()
@@ -127,40 +128,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fragmentManager.beginTransaction().replace(frameId, fragment).commit()
     }
 
-    // ----------- ImageSelection
+    // ImageSelection
     val SELECT_PICTURE = 0
-    val CROP_IMAGE = 1
-    var tempImageUri: Uri? = null
+    val SELECT_CAMERA = 1
 
     fun imageSelection() {
         val cameraListener = object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface?, which: Int) {
-                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())
-                // 이미지 잘라내기 위한 크기
-                intent.putExtra("crop", "true")
-                intent.putExtra("aspectX", 0)
-                intent.putExtra("aspectY", 0)
-                intent.putExtra("outputX", 200)
-                intent.putExtra("outputY", 150)
-                intent.putExtra("output", tempImageUri)
-                try {
-                    //intent.putExtra("return-data", true)
-                    startActivityForResult(intent, CROP_IMAGE)
-                } catch (e: ActivityNotFoundException) {
-                    // Do nothing for now
-                }
+                // Do Anithing
             }
         }
         val albumListener = object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface?, which: Int) {
-                val intent = Intent(Intent.ACTION_PICK);
-                intent.type = android.provider.MediaStore.Images.Media.CONTENT_TYPE
-                try {
-                    startActivityForResult(Intent.createChooser(intent, "이미지 선택"), SELECT_PICTURE)
-                } catch (e: ActivityNotFoundException) {
-                }
+                // Do Anithing
             }
         }
         val cancelListener = object : DialogInterface.OnClickListener {
@@ -168,6 +148,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 dialog!!.dismiss()
             }
         }
+
         AlertDialog.Builder(this)
                 .setTitle("프로필 이미지 선택")
                 .setNeutralButton("취소", cancelListener)
@@ -180,60 +161,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (resultCode == RESULT_OK) {
             when (requestCode) {
                 SELECT_PICTURE -> {
-                    tempImageUri = data!!.data
-
-                    val intent = Intent("com.android.camera.action.CROP")
-                    intent.setDataAndType(tempImageUri, "image/*")
-                    intent.putExtra("outputX", 90)
-                    intent.putExtra("outputY", 90)
-                    intent.putExtra("aspectX", 1)
-                    intent.putExtra("aspectY", 1)
-                    intent.putExtra("scale", true)
-                    intent.putExtra("return-data", true)
-                    startActivityForResult(intent, CROP_IMAGE)
                 }
 
-                CROP_IMAGE -> {
-                    val extras = data!!.extras
-                    if (extras != null) {
-                        val photo: Bitmap = extras.getParcelable("data")
-                        profileImage!!.setImageBitmap(photo)
-                    }
-                    val f = File(tempImageUri!!.getPath())
-                    if (f.exists()) {
-                        f.delete()
-                    }
-
-                    //Glide.with(this)
-                    //        .load(filePath)
-                    //        .crossFade()
-                    //        .thumbnail(0.5f)
-                    //        .bitmapTransform(CircleTransform(this))
-                    //        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    //        .into(profileImage)
+                SELECT_CAMERA -> {
                 }
             }
         }
-    }
-
-    private fun storeImage(bitmap: Bitmap, filePath: String) {
-        val copyFile = File(filePath)
-        var out: BufferedOutputStream?
-        try {
-            copyFile.createNewFile()
-            out = BufferedOutputStream(FileOutputStream(copyFile))
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            out.flush()
-            out.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    fun getImageUri(inContext: Context, inImage: Bitmap): Uri {
-        val bytes = ByteArrayOutputStream()
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null)
-        return Uri.parse(path)
     }
 }

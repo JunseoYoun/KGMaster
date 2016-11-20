@@ -24,8 +24,22 @@
         android:id="@+id/kg_setting"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/kg_setting_notification"
+            android:id="@+id/kg_setting_meal_notification"
+            android:checked="false"
+            android:checkable="false"
             android:title="급식 알림 받기"
+            app:actionLayout="@layout/widget_switch"/>
+        <item
+            android:id="@+id/kg_setting_chat_notification"
+            android:checked="false"
+            android:checkable="false"
+            android:title="챗팅 알림 받기"
+            app:actionLayout="@layout/widget_switch"/>
+        <item
+            android:id="@+id/kg_setting_news_notification"
+            android:checked="false"
+            android:checkable="false"
+            android:title="뉴스 알림 받기"
             app:actionLayout="@layout/widget_switch"/>
     </group>
 </menu>

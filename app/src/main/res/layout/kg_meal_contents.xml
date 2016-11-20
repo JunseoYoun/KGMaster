@@ -1,27 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <!-- Meal Circle -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="5pt">
 
-        <ImageView
+        <TextView
+            android:id="@+id/kg_meal_morning_ico"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:id="@+id/kg_meal_morning_ico"/>
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/kg_meal_lunch_ico"/>
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/kg_meal_evening_ico"/>
+            android:text="아침"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:background="@drawable/shape_circle"
+            android:layout_marginBottom="3dp"/>
 
+        <TextView
+            android:id="@+id/kg_meal_lunch_ico"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="점심"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:background="@drawable/shape_circle"
+            android:layout_marginBottom="3dp"/>
+
+        <TextView
+            android:id="@+id/kg_meal_evening_ico"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="저녁"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:background="@drawable/shape_circle"
+            android:layout_marginBottom="3dp"/>
     </LinearLayout>
 
     <!-- Meal Contents -->
@@ -30,9 +48,163 @@
         Meal Choice
         Meal Comment
     -->
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout">
+
+            <!-- Meal Item -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="1pt"
+                android:layout_marginLeft="5pt"
+                android:layout_marginRight="5pt"
+                android:layout_marginTop="3pt"
+                android:background="@drawable/kg_meal_choice_contents_background"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/kg_meal_texttime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Morning"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/holo_blue_bright"
+                    android:textSize="15pt"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal1"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal2"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal3"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal4"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal5"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <TextView
+                    android:id="@+id/kg_meal_item6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Meal6"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="12pt" />
+
+                <!-- Meal Choice -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <ImageButton
+                        android:id="@+id/kg_meal_good"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="left"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginLeft="3pt"
+                        android:background="@drawable/kg_meal_choice_button"
+                        android:backgroundTint="@android:color/holo_blue_light" />
+
+                    <ImageButton
+                        android:id="@+id/kg_meal_bad"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="right"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginRight="3pt"
+                        android:background="@drawable/kg_meal_choice_button"
+                        android:backgroundTint="@android:color/holo_red_light"
+                        android:text="BAD" />
+
+                    <SeekBar
+                        android:id="@+id/kg_meal_choicebar"
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Meal Comment -->
+        <FrameLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5pt"
+            android:layout_marginRight="5pt"
+            android:layout_marginTop="2pt"
+            android:background="@drawable/kg_meal_choice_contents_background">
+
+            <EditText
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:hint="Comment"
+                android:layout_gravity="left"
+                android:textColorHint="@android:color/holo_orange_light"
+                android:textColor="@color/dark"
+                android:id="@+id/kg_meal_add_coment_field"/>
+
+            <Button
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:text="입력"
+                android:textColor="@android:color/white"
+                android:id="@+id/kg_meal_add_coment_button"/>
+        </FrameLayout>
+    </LinearLayout>
 </LinearLayout>
