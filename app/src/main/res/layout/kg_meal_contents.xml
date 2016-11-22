@@ -206,5 +206,14 @@
                 android:textColor="@android:color/white"
                 android:id="@+id/kg_meal_add_coment_button"/>
         </FrameLayout>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5pt"
+            android:layout_marginRight="5pt"
+            android:layout_marginTop="2pt">
+
+        </ListView>
     </LinearLayout>
 </LinearLayout>
