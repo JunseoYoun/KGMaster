@@ -23,6 +23,10 @@ class CommentAdapter(context: Context) : BaseAdapter()
         this.inflater = LayoutInflater.from(context)
     }
 
+    fun addComment(commentItem : CommentData) : Boolean{
+        return commentList!!.add(commentItem)
+    }
+
     override fun getItemId(position: Int): Long {
         return position as Long
     }
