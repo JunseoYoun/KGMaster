@@ -16,6 +16,7 @@ open class ChatFragment : Fragment(){
         val chatFragment = ChatFragment()
         return chatFragment
     }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater!!.inflate(R.layout.kg_chat,container,false)
     }
