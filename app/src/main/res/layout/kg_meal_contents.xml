@@ -72,6 +72,7 @@
                     android:layout_marginRight="5pt"
                     android:layout_marginTop="3pt"
                     android:background="@drawable/kg_meal_choice_contents_background"
+                    android:id="@+id/kg_meal_view"
                     android:orientation="vertical">
 
                     <TextView
