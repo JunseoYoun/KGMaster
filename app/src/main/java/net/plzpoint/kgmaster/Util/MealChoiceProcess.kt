@@ -11,6 +11,7 @@ import com.androidquery.callback.AjaxStatus
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.logging.Handler
 
 
 /**
@@ -29,11 +30,8 @@ open class MealChoiceProcess : Thread {
     private var choiceTime: ChoiceTime = ChoiceTime.None
     private var choiceType: ChoiceType = ChoiceType.None
     private var choiceBar: SeekBar? = null
-
     private var onlyViewChoice = false
-
     private var aq: AQuery? = null
-
     private var todayString = ""
 
     constructor(choiceBar: SeekBar) {
@@ -58,22 +56,9 @@ open class MealChoiceProcess : Thread {
     }
 
     override fun run() {
-        val hashMap: HashMap<String, Object> = HashMap<String, Object>()
+        val hashMap = HashMap<String, Object>()
+        val objectTest: Object = choiceTime.toString() as Object
+        Log.i("ASD", objectTest.toString())
         hashMap.put("Time", choiceTime.toString() as Object)
-        if (onlyViewChoice && choiceType == ChoiceType.None)
-            hashMap.put("Choice", choiceType.toString() as Object)
-        hashMap.put("Date", todayString as Object)
-        aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_MealChoice.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
-            override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
-                if (`object` != null) {
-                    try {
-                        Log.i("Data", `object`.toString())
-                    } catch (e: Exception) {
-                    }
-                }
-                else
-                    Log.i("Data", "null")
-            }
-        })
     }
 }
