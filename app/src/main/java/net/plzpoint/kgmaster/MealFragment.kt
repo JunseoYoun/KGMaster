@@ -1,0 +1,212 @@
+package net.plzpoint.kgmaster
+
+import android.app.Fragment
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import kotlinx.android.synthetic.main.kg_meal_fragment.view.*
+import org.jsoup.Jsoup
+
+class MealFragment : Fragment() {
+
+    fun instance(): MealFragment {
+        val fragment = MealFragment()
+        return fragment
+    }
+
+    // =======================================================
+
+    var title: TextView? = null
+    var data0: TextView? = null
+    var data1: TextView? = null
+    var data2: TextView? = null
+    var data3: TextView? = null
+    var data4: TextView? = null
+    var data5: TextView? = null
+
+    var meal_progress: LinearLayout? = null
+    var meal_contents: LinearLayout? = null
+
+    var meal_day0_circle: LinearLayout? = null
+    var meal_day1_circle: LinearLayout? = null
+    var meal_day2_circle: LinearLayout? = null
+
+    var load_comment: Button? = null
+    var load_comment_progress: ProgressBar? = null
+
+    var mDay = 0
+    var mMealDay = 0
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
+        title = mInflater.kg_meal_day
+        data0 = mInflater.kg_meal_data0
+        data1 = mInflater.kg_meal_data1
+        data2 = mInflater.kg_meal_data2
+        data3 = mInflater.kg_meal_data3
+        data4 = mInflater.kg_meal_data4
+        data5 = mInflater.kg_meal_data5
+        meal_progress = mInflater.kg_meal_progress
+        meal_contents = mInflater.kg_meal_contents
+        meal_day0_circle = mInflater.kg_meal_day0_circle
+        meal_day1_circle = mInflater.kg_meal_day1_circle
+        meal_day2_circle = mInflater.kg_meal_day2_circle
+        load_comment = mInflater.kg_meal_comment_load
+        load_comment!!.setOnClickListener(loadCommentListener())
+        load_comment_progress = mInflater.kg_meal_commnet_progress
+
+        // TODO : 날자를 불러와서 급식을 불러오도록 바꿔야함
+        // TODO : 댓글 기능을 추가해야함
+
+        getMeals(0, 0)
+
+        return mInflater
+    }
+
+    fun chageMealDay(textView: TextView): View.OnClickListener {
+        val change = object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                when (textView.id) {
+                    R.id.kg_meal_day0_circle -> {
+
+                    }
+                    R.id.kg_meal_day1_circle -> {
+
+                    }
+                    R.id.kg_meal_day2_circle -> {
+
+                    }
+                }
+            }
+        }
+        return change
+    }
+
+    fun loadCommentListener(): View.OnClickListener {
+        val _loadComment = object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                load_comment_progress!!.visibility = VISIBLE
+                load_comment!!.visibility = GONE
+                loadComment()
+            }
+        }
+        return _loadComment
+    }
+
+    fun loadComment() {
+        Thread {
+            val progress = Handler(Looper.getMainLooper())
+            progress.postDelayed(Runnable {
+
+            }, 0)
+
+            progress.postDelayed(Runnable {
+                //load_comment_progress!!.visibility = GONE
+                //load_comment!!.visibility = GONE
+            }, 0)
+        }.start()
+    }
+
+    fun String.splitKeeping(str: String): List<String> {
+        return this.split(str).flatMap { listOf(it, str) }.dropLast(1).filterNot { it.isEmpty() }
+    }
+
+    fun String.splitKeeping(vararg strs: String): List<String> {
+        var res = listOf(this)
+        strs.forEach { str ->
+            res = res.flatMap { it.splitKeeping(str) }
+        }
+        return res
+    }
+
+    // day (일,월,화,수,목,금,토)
+    // mealDay (아침,점심,저녁)
+    fun getMeals(day: Int, _mealDay: Int) {
+        var mealDay = _mealDay
+        var isMeal = false
+
+        if (_mealDay == 0) {
+            mealDay = 1
+            title!!.text = "아침"
+            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
+            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+        } else if (_mealDay == 1) {
+            mealDay = 3
+            title!!.text = "점심"
+            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
+            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+        } else if (_mealDay == 2) {
+            mealDay = 5
+            title!!.text = "저녁"
+            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
+            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
+        }
+
+        Thread {
+            try {
+                val process = Handler(Looper.getMainLooper())
+                val ssl = SSLConnect()
+                ssl.postHttps("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100", 1000, 1000)
+                val doc = Jsoup.connect("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100").get()
+                val contents = doc.select("table.foodbox tbody tr")
+                val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
+                val data = contents[day].children()[mealDay].toString().splitKeeping("<br>", "<td>", "</td>")
+                process.postDelayed(Runnable {
+                    MainActivity.Instance.instance!!.main_title!!.text = day_contents
+                    var meal_count = 0
+                    if (!isMeal) {
+                        for (item in data) {
+                            if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
+                                continue
+                            Log.i("Item", item)
+
+                            isMeal = true
+                            when (meal_count) {
+                                0 -> {
+                                    data0!!.text = item
+                                }
+                                1 -> {
+                                    data1!!.text = item
+                                }
+                                2 -> {
+                                    data2!!.text = item
+                                }
+                                3 -> {
+                                    data3!!.text = item
+                                }
+                                4 -> {
+                                    data4!!.text = item
+                                }
+                                5 -> {
+                                    data5!!.text = item
+                                }
+                            }
+                            meal_count += 1
+                        }
+                    }
+                    if (isMeal) {
+                        process.postDelayed(Runnable {
+                            meal_progress!!.visibility = GONE
+                            meal_contents!!.visibility = VISIBLE
+                        }, 0)
+                    }
+                }, 0)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
+    }
+}
