@@ -4,18 +4,21 @@ import android.app.Fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
+import com.androidquery.AQuery
+import com.androidquery.callback.AjaxCallback
+import com.androidquery.callback.AjaxStatus
 import kotlinx.android.synthetic.main.kg_meal_fragment.view.*
+import org.json.JSONObject
 import org.jsoup.Jsoup
+import java.util.*
 
 class MealFragment : Fragment() {
 
@@ -41,11 +44,16 @@ class MealFragment : Fragment() {
     var meal_day1_circle: LinearLayout? = null
     var meal_day2_circle: LinearLayout? = null
 
+    var push_comment_text: EditText? = null
+    var push_comment: Button? = null
+
     var load_comment: Button? = null
     var load_comment_progress: ProgressBar? = null
 
     var mDay = 0
     var mMealDay = 0
+
+    var aq: AQuery? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
@@ -59,39 +67,75 @@ class MealFragment : Fragment() {
         meal_progress = mInflater.kg_meal_progress
         meal_contents = mInflater.kg_meal_contents
         meal_day0_circle = mInflater.kg_meal_day0_circle
+        meal_day0_circle!!.setOnClickListener(chageMealDay())
         meal_day1_circle = mInflater.kg_meal_day1_circle
+        meal_day1_circle!!.setOnClickListener(chageMealDay())
         meal_day2_circle = mInflater.kg_meal_day2_circle
+        meal_day2_circle!!.setOnClickListener(chageMealDay())
+        push_comment_text = mInflater.kg_meal_push_comment_text
+        push_comment = mInflater.kg_meal_push_comment_button
+        push_comment!!.setOnClickListener(pushCommentListener())
         load_comment = mInflater.kg_meal_comment_load
         load_comment!!.setOnClickListener(loadCommentListener())
         load_comment_progress = mInflater.kg_meal_commnet_progress
 
+        aq = AQuery(activity.applicationContext)
+
         // TODO : 날자를 불러와서 급식을 불러오도록 바꿔야함
         // TODO : 댓글 기능을 추가해야함
 
-        getMeals(0, 0)
+        mDay = 0
+        mMealDay = 0
+
+        getMeals(mDay, mMealDay)
 
         return mInflater
     }
 
-    fun chageMealDay(textView: TextView): View.OnClickListener {
+    fun chageMealDay(): View.OnClickListener {
         val change = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                when (textView.id) {
+                when (v!!.id) {
                     R.id.kg_meal_day0_circle -> {
-
+                        mMealDay = 0
                     }
                     R.id.kg_meal_day1_circle -> {
-
+                        mMealDay = 1
                     }
                     R.id.kg_meal_day2_circle -> {
-
+                        mMealDay = 2
                     }
                 }
+                getMeals(mDay, mMealDay)
             }
         }
         return change
     }
 
+    fun pushCommentListener(): View.OnClickListener {
+        val _pushComment = object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                val pushText = push_comment_text!!.text.toString()
+                val hashMap = HashMap<String, Any>()
+                hashMap.put("KG_ID", "root")
+                hashMap.put("KG_COMMENT", "ASDASDASD")
+                hashMap.put("KG_CONTENTS_ID", 2)
+
+                aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_pushComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+                    override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
+                        try {
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                })
+            }
+        }
+        return _pushComment
+    }
+
+    // 불러오기 버튼
     fun loadCommentListener(): View.OnClickListener {
         val _loadComment = object : View.OnClickListener {
             override fun onClick(v: View?) {
@@ -103,6 +147,7 @@ class MealFragment : Fragment() {
         return _loadComment
     }
 
+    // 불러오기
     fun loadComment() {
         Thread {
             val progress = Handler(Looper.getMainLooper())

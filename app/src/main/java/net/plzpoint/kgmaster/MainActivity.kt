@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val fm: FragmentManager = fragmentManager
         fragmentTransaction = fm.beginTransaction()
-        fragmentTransaction!!.replace(R.id.content_main, notice_fragment)
+        fragmentTransaction!!.replace(R.id.content_main, meal_fragment)
         fragmentTransaction!!.commit()
     }
 
