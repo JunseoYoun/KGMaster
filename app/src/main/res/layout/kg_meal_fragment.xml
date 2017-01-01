@@ -94,6 +94,21 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/kg_meal_no_meal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="급식이 없습니다."
+                            android:textSize="20dp"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/kg_meal_contents"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -219,7 +234,8 @@
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:layout_margin="15dp"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:id="@+id/kg_meal_comment_panel">
 
                         <ProgressBar
                             android:id="@+id/kg_meal_commnet_progress"
@@ -236,12 +252,14 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/kg_comment_list_panel"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="15dp"
                         android:visibility="gone">
 
                         <ListView
+                            android:id="@+id/kg_meal_comment_list"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"></ListView>
                     </LinearLayout>

@@ -15,6 +15,7 @@ import android.widget.*
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
 import com.androidquery.callback.AjaxStatus
+import kotlinx.android.synthetic.main.kg_meal_fragment.*
 import kotlinx.android.synthetic.main.kg_meal_fragment.view.*
 import org.json.JSONObject
 import org.jsoup.Jsoup
@@ -39,6 +40,7 @@ class MealFragment : Fragment() {
 
     var meal_progress: LinearLayout? = null
     var meal_contents: LinearLayout? = null
+    var no_meal_text: TextView? = null
 
     var meal_day0_circle: LinearLayout? = null
     var meal_day1_circle: LinearLayout? = null
@@ -54,6 +56,11 @@ class MealFragment : Fragment() {
     var mMealDay = 0
 
     var aq: AQuery? = null
+
+    var commentListPanel: LinearLayout? = null
+    var commentPanel: LinearLayout? = null
+    var commentList: ListView? = null
+    var commentAdapter: CommentAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
@@ -78,11 +85,16 @@ class MealFragment : Fragment() {
         load_comment = mInflater.kg_meal_comment_load
         load_comment!!.setOnClickListener(loadCommentListener())
         load_comment_progress = mInflater.kg_meal_commnet_progress
+        no_meal_text = mInflater.kg_meal_no_meal
+
+        commentPanel = mInflater!!.kg_meal_comment_panel
+        commentListPanel = mInflater!!.kg_comment_list_panel
+
+        commentAdapter = CommentAdapter(activity.applicationContext)
+        commentList = mInflater!!.kg_meal_comment_list
+        commentList!!.adapter = commentAdapter
 
         aq = AQuery(activity.applicationContext)
-
-        // TODO : 날자를 불러와서 급식을 불러오도록 바꿔야함
-        // TODO : 댓글 기능을 추가해야함
 
         mDay = 0
         mMealDay = 0
@@ -106,6 +118,7 @@ class MealFragment : Fragment() {
                         mMealDay = 2
                     }
                 }
+                no_meal_text!!.visibility = GONE
                 getMeals(mDay, mMealDay)
             }
         }
@@ -113,7 +126,7 @@ class MealFragment : Fragment() {
     }
 
     fun pushCommentListener(): View.OnClickListener {
-        val _pushComment = object : View.OnClickListener {
+        return object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val pushText = push_comment_text!!.text.toString()
                 val hashMap = HashMap<String, Any>()
@@ -123,41 +136,65 @@ class MealFragment : Fragment() {
 
                 aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_pushComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
                     override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
-                        try {
 
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
                     }
                 })
             }
         }
-        return _pushComment
     }
 
     // 불러오기 버튼
     fun loadCommentListener(): View.OnClickListener {
-        val _loadComment = object : View.OnClickListener {
+        return object : View.OnClickListener {
             override fun onClick(v: View?) {
-                load_comment_progress!!.visibility = VISIBLE
-                load_comment!!.visibility = GONE
                 loadComment()
             }
         }
-        return _loadComment
     }
 
     // 불러오기
     fun loadComment() {
+        var isComment = false
         Thread {
             val progress = Handler(Looper.getMainLooper())
             progress.postDelayed(Runnable {
-
+                load_comment_progress!!.visibility = VISIBLE
+                load_comment!!.visibility = GONE
             }, 0)
 
+            aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_loadComment.php", JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+                override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
+                    if (jsonObject != null) {
+                        val jsonArray = jsonObject.getJSONArray("comment_list")
+                        if (jsonArray != null) {
+                            for (i in 0..jsonArray.length() - 1) {
+                                val container = jsonArray.getJSONObject(i)
+                                val id = container.getString("id")
+                                val comment = container.getString("comment")
+                                val date = container.getString("date")
+
+                                Log.i("Item", "$id $comment $date")
+
+                                commentAdapter!!.addComment(CommentData(id, comment, date))
+
+                                isComment = true
+                            }
+                        }
+                    }
+                }
+            })
+
             progress.postDelayed(Runnable {
-                //load_comment_progress!!.visibility = GONE
-                //load_comment!!.visibility = GONE
+                load_comment_progress!!.visibility = GONE
+                load_comment!!.visibility = GONE
+                if (isComment) {
+                    commentPanel!!.visibility = GONE
+                    commentListPanel!!.visibility = VISIBLE
+                    commentAdapter!!.notifyDataSetChanged()
+                } else {
+                    commentListPanel!!.visibility = GONE
+                    commentPanel!!.visibility = VISIBLE
+                }
             }, 0)
         }.start()
     }
@@ -179,6 +216,9 @@ class MealFragment : Fragment() {
     fun getMeals(day: Int, _mealDay: Int) {
         var mealDay = _mealDay
         var isMeal = false
+
+        no_meal_text!!.visibility = GONE
+        meal_contents!!.visibility = GONE
 
         if (_mealDay == 0) {
             mealDay = 1
@@ -246,6 +286,15 @@ class MealFragment : Fragment() {
                         process.postDelayed(Runnable {
                             meal_progress!!.visibility = GONE
                             meal_contents!!.visibility = VISIBLE
+                            no_meal_text!!.visibility = GONE
+                            meal_contents!!.visibility = VISIBLE
+                        }, 0)
+                    } else {
+                        process.postDelayed(Runnable {
+                            meal_progress!!.visibility = GONE
+                            meal_contents!!.visibility = VISIBLE
+                            no_meal_text!!.visibility = VISIBLE
+                            meal_contents!!.visibility = GONE
                         }, 0)
                     }
                 }, 0)
