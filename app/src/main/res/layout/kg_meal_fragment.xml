@@ -26,9 +26,9 @@
                     android:id="@+id/kg_meal_day0_circle"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/circle_shape_black"
-                    android:gravity="center"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -42,9 +42,9 @@
                     android:id="@+id/kg_meal_day1_circle"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/circle_shape_black"
-                    android:gravity="center"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -58,9 +58,9 @@
                     android:id="@+id/kg_meal_day2_circle"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/circle_shape_black"
-                    android:gravity="center"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
                             android:layout_height="wrap_content"
                             android:text="급식이 없습니다."
                             android:textSize="20dp"
-                            android:visibility="gone"/>
+                            android:visibility="gone" />
 
                     </LinearLayout>
 
@@ -179,9 +179,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center"
+                    android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp">
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -234,35 +234,34 @@
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:layout_margin="15dp"
-                        android:gravity="center"
-                        android:id="@+id/kg_meal_comment_panel">
+                        android:gravity="center">
 
                         <ProgressBar
                             android:id="@+id/kg_meal_commnet_progress"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            android:visibility="gone" />
-
-                        <Button
-                            android:id="@+id/kg_meal_comment_load"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="댓글 불러오기" />
-
+                            android:visibility="visible" />
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/kg_comment_list_panel"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_gravity="center"
                         android:layout_margin="15dp"
-                        android:visibility="gone">
+                        android:gravity="center">
 
-                        <ListView
-                            android:id="@+id/kg_meal_comment_list"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"></ListView>
+                        <TextView
+                            android:id="@+id/kg_meal_commnet_nocomment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="댓글이 없습니다."
+                            android:visibility="visible" />
                     </LinearLayout>
+
+                    <ListView
+                        android:id="@+id/kg_meal_comment_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"></ListView>
                 </RelativeLayout>
             </LinearLayout>
         </LinearLayout>

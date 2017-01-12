@@ -28,8 +28,6 @@ class MealFragment : Fragment() {
         return fragment
     }
 
-    // =======================================================
-
     var title: TextView? = null
     var data0: TextView? = null
     var data1: TextView? = null
@@ -41,6 +39,7 @@ class MealFragment : Fragment() {
     var meal_progress: LinearLayout? = null
     var meal_contents: LinearLayout? = null
     var no_meal_text: TextView? = null
+    var no_comment_text: TextView? = null
 
     var meal_day0_circle: LinearLayout? = null
     var meal_day1_circle: LinearLayout? = null
@@ -49,7 +48,6 @@ class MealFragment : Fragment() {
     var push_comment_text: EditText? = null
     var push_comment: Button? = null
 
-    var load_comment: Button? = null
     var load_comment_progress: ProgressBar? = null
 
     var mDay = 0
@@ -57,8 +55,6 @@ class MealFragment : Fragment() {
 
     var aq: AQuery? = null
 
-    var commentListPanel: LinearLayout? = null
-    var commentPanel: LinearLayout? = null
     var commentList: ListView? = null
     var commentAdapter: CommentAdapter? = null
 
@@ -82,13 +78,10 @@ class MealFragment : Fragment() {
         push_comment_text = mInflater.kg_meal_push_comment_text
         push_comment = mInflater.kg_meal_push_comment_button
         push_comment!!.setOnClickListener(pushCommentListener())
-        load_comment = mInflater.kg_meal_comment_load
-        load_comment!!.setOnClickListener(loadCommentListener())
+
         load_comment_progress = mInflater.kg_meal_commnet_progress
         no_meal_text = mInflater.kg_meal_no_meal
-
-        commentPanel = mInflater!!.kg_meal_comment_panel
-        commentListPanel = mInflater!!.kg_comment_list_panel
+        no_comment_text = mInflater.kg_meal_commnet_nocomment
 
         commentAdapter = CommentAdapter(activity.applicationContext)
         commentList = mInflater!!.kg_meal_comment_list
@@ -96,10 +89,16 @@ class MealFragment : Fragment() {
 
         aq = AQuery(activity.applicationContext)
 
-        mDay = 0
+        mDay = 1
         mMealDay = 0
 
         getMeals(mDay, mMealDay)
+
+        commentList!!.visibility = GONE
+        no_comment_text!!.visibility = GONE
+        load_comment_progress!!.visibility = VISIBLE
+
+        loadComment()
 
         return mInflater
     }
@@ -133,7 +132,6 @@ class MealFragment : Fragment() {
                 hashMap.put("KG_ID", "root")
                 hashMap.put("KG_COMMENT", "ASDASDASD")
                 hashMap.put("KG_CONTENTS_ID", 2)
-
                 aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_pushComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
                     override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
 
@@ -143,23 +141,15 @@ class MealFragment : Fragment() {
         }
     }
 
-    // 불러오기 버튼
-    fun loadCommentListener(): View.OnClickListener {
-        return object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                loadComment()
-            }
-        }
-    }
-
     // 불러오기
     fun loadComment() {
-        var isComment = false
+
         Thread {
+            var isComment = false
             val progress = Handler(Looper.getMainLooper())
             progress.postDelayed(Runnable {
                 load_comment_progress!!.visibility = VISIBLE
-                load_comment!!.visibility = GONE
+                no_comment_text!!.visibility = GONE
             }, 0)
 
             aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_loadComment.php", JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
@@ -173,9 +163,10 @@ class MealFragment : Fragment() {
                                 val comment = container.getString("comment")
                                 val date = container.getString("date")
 
-                                Log.i("Item", "$id $comment $date")
+                                Log.i("Item", id + " " + comment + " " + date)
 
-                                commentAdapter!!.addComment(CommentData(id, comment, date))
+                                commentAdapter!!.addComment(CommentData(id.toString(), comment.toString(), date.toString()))
+                                commentAdapter!!.notifyDataSetChanged()
 
                                 isComment = true
                             }
@@ -186,15 +177,8 @@ class MealFragment : Fragment() {
 
             progress.postDelayed(Runnable {
                 load_comment_progress!!.visibility = GONE
-                load_comment!!.visibility = GONE
-                if (isComment) {
-                    commentPanel!!.visibility = GONE
-                    commentListPanel!!.visibility = VISIBLE
-                    commentAdapter!!.notifyDataSetChanged()
-                } else {
-                    commentListPanel!!.visibility = GONE
-                    commentPanel!!.visibility = VISIBLE
-                }
+                no_comment_text!!.visibility = GONE
+                commentList!!.visibility = VISIBLE
             }, 0)
         }.start()
     }
@@ -256,24 +240,33 @@ class MealFragment : Fragment() {
                         for (item in data) {
                             if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
                                 continue
-                            Log.i("Item", item)
+
+                            var emItem = ""
+                            if (item[0] == ' ') {
+                                for (i in 1..item.length - 1) {
+                                    emItem += item[i]
+                                }
+                            } else
+                                emItem = item
+
+                            Log.i("Item", emItem)
 
                             isMeal = true
                             when (meal_count) {
                                 0 -> {
-                                    data0!!.text = item
+                                    data0!!.text = emItem
                                 }
                                 1 -> {
-                                    data1!!.text = item
+                                    data1!!.text = emItem
                                 }
                                 2 -> {
-                                    data2!!.text = item
+                                    data2!!.text = emItem
                                 }
                                 3 -> {
-                                    data3!!.text = item
+                                    data3!!.text = emItem
                                 }
                                 4 -> {
-                                    data4!!.text = item
+                                    data4!!.text = emItem
                                 }
                                 5 -> {
                                     data5!!.text = item
