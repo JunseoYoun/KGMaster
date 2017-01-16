@@ -3,7 +3,9 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp">
+    android:layout_margin="10dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -175,34 +177,53 @@
                     </LinearLayout>
                 </RelativeLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="5dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right|center"
-                        android:text="좋아요"
-                        android:textSize="15dp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:gravity="left|center">
 
-                    <SeekBar
-                        android:layout_width="200dp"
-                        android:layout_height="10dp"
-                        android:layout_gravity="center" />
+                        <TextView
+                            android:id="@+id/kg_meal_choice_good"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="좋아요"
+                            android:textSize="15dp" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left|center"
-                        android:text="싫어요"
-                        android:textSize="15dp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:gravity="center">
 
-                </LinearLayout>
+                        <SeekBar
+                            android:id="@+id/kg_meal_choice_bar"
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:thumb="@android:color/transparent"
+                            android:progressDrawable="@drawable/kg_meal_progress_bar"
+                            android:clickable="false"
+                            android:max="10"
+                            android:progress="5" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:gravity="right|center">
+
+                        <TextView
+                            android:id="@+id/kg_meal_choice_bad"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="싫어요"
+                            android:textSize="15dp" />
+                    </LinearLayout>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -212,9 +233,11 @@
                     <EditText
                         android:id="@+id/kg_meal_push_comment_text"
                         android:layout_width="200dp"
-                        android:layout_height="40dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:hint="댓글" />
+                        android:gravity="top"
+                        android:hint="댓글"
+                        android:minLines="1" />
 
                     <Button
                         android:id="@+id/kg_meal_push_comment_button"
@@ -261,7 +284,9 @@
                     <ListView
                         android:id="@+id/kg_meal_comment_list"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"></ListView>
+                        android:layout_height="match_parent"
+                        android:divider="#00ffffff"
+                        android:scrollbars="none"></ListView>
                 </RelativeLayout>
             </LinearLayout>
         </LinearLayout>

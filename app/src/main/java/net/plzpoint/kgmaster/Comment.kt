@@ -66,6 +66,14 @@ class CommentAdapter(context: Context) : BaseAdapter() {
         comments.add(comment)
     }
 
+    fun reverse() {
+        comments.reverse()
+    }
+
+    fun clear() {
+        comments.clear()
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view: View?
         val holder: CommentHolder?

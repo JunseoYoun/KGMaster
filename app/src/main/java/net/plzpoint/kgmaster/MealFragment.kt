@@ -1,6 +1,8 @@
 package net.plzpoint.kgmaster
 
 import android.app.Fragment
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,15 +13,23 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
 import com.androidquery.callback.AjaxStatus
+import kotlinx.android.synthetic.main.contents_nav_header.*
 import kotlinx.android.synthetic.main.kg_meal_fragment.*
 import kotlinx.android.synthetic.main.kg_meal_fragment.view.*
 import org.json.JSONObject
 import org.jsoup.Jsoup
+import java.text.SimpleDateFormat
 import java.util.*
+import android.view.View.OnTouchListener
+import android.view.MotionEvent
+import android.content.SharedPreferences
+import android.content.Context.MODE_PRIVATE
+
 
 class MealFragment : Fragment() {
 
@@ -58,6 +68,10 @@ class MealFragment : Fragment() {
     var commentList: ListView? = null
     var commentAdapter: CommentAdapter? = null
 
+    var choiceBar: SeekBar? = null
+    var choiceGood: TextView? = null
+    var choiceBad: TextView? = null
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
         title = mInflater.kg_meal_day
@@ -87,6 +101,46 @@ class MealFragment : Fragment() {
         commentList = mInflater!!.kg_meal_comment_list
         commentList!!.adapter = commentAdapter
 
+        choiceBar = mInflater!!.kg_meal_choice_bar
+        choiceBar!!.thumb.mutate().alpha = 0
+        choiceBar!!.setOnTouchListener(object : OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                return true
+            }
+        })
+
+        choiceBad = mInflater!!.kg_meal_choice_bad
+        choiceBad!!.setOnClickListener {
+            val pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
+            val editor = pref.edit()
+            val date = Date()
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+            var data = pref!!.getBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), false)
+            if (!data) {
+                mealChoice(0, 0)
+                editor.putBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), true)
+                editor.commit()
+            } else {
+                Toast.makeText(activity.applicationContext, "이미 투표하셨습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        choiceGood = mInflater!!.kg_meal_choice_good
+        choiceGood!!.setOnClickListener {
+            var pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
+            var editor = pref!!.edit()
+            val date = Date()
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+            var data = pref!!.getBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), false)
+            if (!data) {
+                mealChoice(0, 1)
+                editor.putBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), true)
+                editor.commit()
+            } else {
+                Toast.makeText(activity.applicationContext, "이미 투표하셨습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         aq = AQuery(activity.applicationContext)
 
         mDay = 1
@@ -94,13 +148,49 @@ class MealFragment : Fragment() {
 
         getMeals(mDay, mMealDay)
 
-        commentList!!.visibility = GONE
+        commentList!!.visibility = VISIBLE
         no_comment_text!!.visibility = GONE
-        load_comment_progress!!.visibility = VISIBLE
+        load_comment_progress!!.visibility = GONE
+
+        //val pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
+        //val editor = pref.edit()
+        //editor.clear()
+        //editor.commit()
 
         loadComment()
 
+        mealChoice(1)
+
         return mInflater
+    }
+
+    // choice : good, bad, null
+    fun mealChoice(onlyChoice: Int, choice: Int = 3) {
+        val date = Date()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        val hashMap = HashMap<String, Any>()
+        hashMap.put("KG_CONTENTS_TIME", mMealDay)
+        hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
+        hashMap.put("KG_CONTENTS_CHOICE", choice)
+        hashMap.put("KG_CONTENTS_ONLYCHOICE", onlyChoice)
+
+        choiceBar!!.max = 100
+        choiceBar!!.progress = 0
+
+        aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_mealChoice.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+            override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
+                if (jsonObject != null) {
+                    val good = jsonObject.getInt("good")
+                    val bad = jsonObject.getInt("bad")
+
+                    choiceBar!!.max = good + bad
+                    choiceBar!!.progress = good
+
+                    Log.i("choice", "good = $good, bad = $bad")
+                }
+            }
+        })
     }
 
     fun chageMealDay(): View.OnClickListener {
@@ -119,6 +209,8 @@ class MealFragment : Fragment() {
                 }
                 no_meal_text!!.visibility = GONE
                 getMeals(mDay, mMealDay)
+                loadComment()
+                mealChoice(1)
             }
         }
         return change
@@ -129,57 +221,88 @@ class MealFragment : Fragment() {
             override fun onClick(v: View?) {
                 val pushText = push_comment_text!!.text.toString()
                 val hashMap = HashMap<String, Any>()
-                hashMap.put("KG_ID", "root")
-                hashMap.put("KG_COMMENT", "ASDASDASD")
-                hashMap.put("KG_CONTENTS_ID", 2)
+
+                val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(push_comment_text!!.windowToken, 0)
+
+                val date = Date()
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+                hashMap.put("KG_ID", (activity.findViewById(R.id.kg_profile_nickname) as TextView).text)
+                hashMap.put("KG_COMMENT", pushText)
+                hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
+                hashMap.put("KG_CONTENTS_ID", 1)
+                hashMap.put("KG_CONTENTS_TIME", mMealDay)
                 aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_pushComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
                     override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
 
                     }
                 })
+
+                push_comment_text!!.text.clear()
+                loadComment()
             }
         }
     }
 
     // 불러오기
     fun loadComment() {
-
+        commentAdapter!!.clear()
+        commentAdapter!!.notifyDataSetChanged()
         Thread {
-            var isComment = false
             val progress = Handler(Looper.getMainLooper())
             progress.postDelayed(Runnable {
+                commentList!!.visibility = GONE
                 load_comment_progress!!.visibility = VISIBLE
                 no_comment_text!!.visibility = GONE
             }, 0)
 
-            aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_loadComment.php", JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+            // 콘텐츠 아이디 2
+            // 날자 2017-01-24
+            // 콘텐츠 시간 0
+            val hashMap = HashMap<String, Any>()
+
+            val date = Date()
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+            hashMap.put("KG_CONTENTS_ID", 1)
+            hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
+            hashMap.put("KG_CONTENTS_TIME", mMealDay)
+
+            aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_loadComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
                 override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
                     if (jsonObject != null) {
-                        val jsonArray = jsonObject.getJSONArray("comment_list")
-                        if (jsonArray != null) {
-                            for (i in 0..jsonArray.length() - 1) {
-                                val container = jsonArray.getJSONObject(i)
-                                val id = container.getString("id")
-                                val comment = container.getString("comment")
-                                val date = container.getString("date")
+                        val state = jsonObject.getString("state")
+                        Log.i("state", state.toString())
+                        if (state == "true") {
+                            val jsonArray = jsonObject.getJSONArray("comment_list")
+                            if (jsonArray != null) {
+                                for (i in 0..jsonArray.length() - 1) {
+                                    val container = jsonArray.getJSONObject(i)
+                                    val id = container.getString("id")
+                                    val comment = container.getString("comment")
+                                    val date = container.getString("date")
 
-                                Log.i("Item", id + " " + comment + " " + date)
+                                    Log.i("comment", "$id $comment $date")
 
-                                commentAdapter!!.addComment(CommentData(id.toString(), comment.toString(), date.toString()))
-                                commentAdapter!!.notifyDataSetChanged()
-
-                                isComment = true
+                                    commentAdapter!!.addComment(CommentData(id.toString(), comment.toString(), date.toString()))
+                                }
+                                if (commentAdapter!!.comments.size > 0) {
+                                    commentAdapter!!.reverse()
+                                    commentAdapter!!.notifyDataSetChanged()
+                                    load_comment_progress!!.visibility = GONE
+                                    no_comment_text!!.visibility = GONE
+                                    commentList!!.visibility = VISIBLE
+                                }
                             }
+                        } else {
+                            load_comment_progress!!.visibility = GONE
+                            no_comment_text!!.visibility = VISIBLE
+                            commentList!!.visibility = GONE
                         }
                     }
                 }
             })
-
-            progress.postDelayed(Runnable {
-                load_comment_progress!!.visibility = GONE
-                no_comment_text!!.visibility = GONE
-                commentList!!.visibility = VISIBLE
-            }, 0)
         }.start()
     }
 
