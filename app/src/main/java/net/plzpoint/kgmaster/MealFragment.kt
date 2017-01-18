@@ -143,7 +143,13 @@ class MealFragment : Fragment() {
 
         aq = AQuery(activity.applicationContext)
 
-        mDay = 1
+        val oCalendar = Calendar.getInstance()
+        //val week = arrayOf("일", "월", "화", "수", "목", "금", "토")
+        var dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
+
+        //println("현재 요일: " + week[oCalendar.get(Calendar.DAY_OF_WEEK) - 1] + "요일")
+
+        mDay = dayOfWeek
         mMealDay = 0
 
         getMeals(mDay, mMealDay)

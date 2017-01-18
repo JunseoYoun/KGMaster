@@ -1,0 +1,23 @@
+package net.plzpoint.kgmaster
+
+import android.app.Fragment
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+/**
+ * Created by junsu on 2017-01-18.
+ */
+class NewsFragment : Fragment() {
+
+    fun instance(): MealFragment {
+        val fragment = MealFragment()
+        return fragment
+    }
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val mInflater = inflater!!.inflate(R.layout.kg_news_fragment, container, false)
+        return mInflater
+    }
+}

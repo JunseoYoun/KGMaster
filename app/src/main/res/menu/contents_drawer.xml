@@ -3,23 +3,27 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_meal"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/cutlery"
             android:title="급식" />
         <item
             android:id="@+id/nav_schedule"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/calendar"
             android:title="일정표" />
         <item
             android:id="@+id/nav_notice"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/bell"
             android:title="공지사항" />
+        <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/newspaper"
+            android:title="뉴스" />
     </group>
 
     <item android:title="옵션">
         <menu>
             <item
                 android:id="@+id/nav_meal_notifi"
-                android:icon="@drawable/ic_menu_share"
+                android:icon="@drawable/padnote"
                 android:title="급식 알림" />
         </menu>
     </item>

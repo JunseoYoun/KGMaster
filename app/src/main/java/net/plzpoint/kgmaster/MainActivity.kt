@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     val meal_fragment = MealFragment().instance()
     val schedule_fragment = ScheduleFragment().instance()
     val notice_fragment = NoticeFragment().instance()
+    val news_fragment = NewsFragment().instance()
 
     var fragmentTransaction: FragmentTransaction? = null
     var main_title: TextView? = null
