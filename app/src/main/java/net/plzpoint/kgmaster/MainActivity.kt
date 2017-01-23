@@ -94,6 +94,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fragmentTransaction!!.replace(R.id.content_main, notice_fragment)
                 fragmentTransaction!!.commit()
             }
+            R.id.nav_news -> {
+                val fm: FragmentManager = fragmentManager
+                fragmentTransaction = fm.beginTransaction()
+                fragmentTransaction!!.replace(R.id.content_main, news_fragment)
+                fragmentTransaction!!.commit()
+            }
         }
 
         val drawer = findViewById(R.id.drawer_layout) as DrawerLayout

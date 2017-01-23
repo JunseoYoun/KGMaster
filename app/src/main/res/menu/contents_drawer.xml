@@ -18,13 +18,14 @@
             android:icon="@drawable/newspaper"
             android:title="뉴스" />
     </group>
-
-    <item android:title="옵션">
-        <menu>
-            <item
-                android:id="@+id/nav_meal_notifi"
-                android:icon="@drawable/padnote"
-                android:title="급식 알림" />
-        </menu>
+    <!--
+<item android:title="옵션">
+    <menu>
+        <item
+            android:id="@+id/nav_meal_notifi"
+            android:icon="@drawable/padnote"
+            android:title="급식 알림" />
+    </menu>
     </item>
+        -->
 </menu>

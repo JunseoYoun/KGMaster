@@ -11,8 +11,8 @@ import android.view.ViewGroup
  */
 class NewsFragment : Fragment() {
 
-    fun instance(): MealFragment {
-        val fragment = MealFragment()
+    fun instance(): NewsFragment {
+        val fragment = NewsFragment()
         return fragment
     }
 
