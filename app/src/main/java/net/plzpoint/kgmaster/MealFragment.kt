@@ -30,143 +30,120 @@ import android.view.MotionEvent
 import android.content.SharedPreferences
 import android.content.Context.MODE_PRIVATE
 
+class MealData {
+    var day: String = ""
+    var data0: String = ""
+    var data1: String = ""
+    var data2: String = ""
+    var data3: String = ""
+    var data4: String = ""
+    var data5: String = ""
+}
+
+class MealHolder(view: View) {
+    val day: TextView
+    val data0: TextView
+    val data1: TextView
+    val data2: TextView
+    val data3: TextView
+    val data4: TextView
+    val data5: TextView
+    val choice: SeekBar
+
+    init {
+        this.day = view.findViewById(R.id.kg_meal_day) as TextView
+        this.data0 = view.findViewById(R.id.kg_meal_data0) as TextView
+        this.data1 = view.findViewById(R.id.kg_meal_data1) as TextView
+        this.data2 = view.findViewById(R.id.kg_meal_data2) as TextView
+        this.data3 = view.findViewById(R.id.kg_meal_data3) as TextView
+        this.data4 = view.findViewById(R.id.kg_meal_data4) as TextView
+        this.data5 = view.findViewById(R.id.kg_meal_data5) as TextView
+        this.choice = view.findViewById(R.id.kg_meal_choice_bar) as SeekBar
+    }
+}
+
+class MealAdapter(context: Context) : BaseAdapter() {
+    val inflater: LayoutInflater?
+    val meals = ArrayList<MealData>()
+
+    init {
+        inflater = LayoutInflater.from(context)
+    }
+
+    override fun getCount(): Int {
+        return meals.count()
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    override fun getItem(position: Int): Any {
+        return meals[position]
+    }
+
+    fun add(meal: MealData) {
+        meals.add(meal)
+    }
+
+    fun reverse() {
+        meals.reverse()
+    }
+
+    fun clear() {
+        meals.clear()
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        val view: View?
+        val holder: MealHolder?
+        if (convertView == null) {
+            view = inflater!!.inflate(R.layout.kg_meal_content, parent, false)
+            holder = MealHolder(view)
+            view!!.tag = holder
+        } else {
+            view = convertView
+            holder = view!!.tag as MealHolder
+        }
+        holder.day.text = meals[position].day
+        holder.data0.text = meals[position].data0
+        holder.data1.text = meals[position].data1
+        holder.data2.text = meals[position].data2
+        holder.data3.text = meals[position].data3
+        holder.data4.text = meals[position].data4
+        holder.data5.text = meals[position].data5
+        return view
+    }
+}
 
 class MealFragment : Fragment() {
-
     fun instance(): MealFragment {
         val fragment = MealFragment()
         return fragment
     }
 
-    var title: TextView? = null
-    var data0: TextView? = null
-    var data1: TextView? = null
-    var data2: TextView? = null
-    var data3: TextView? = null
-    var data4: TextView? = null
-    var data5: TextView? = null
-
-    var meal_progress: LinearLayout? = null
-    var meal_contents: LinearLayout? = null
-    var no_meal_text: TextView? = null
-    var no_comment_text: TextView? = null
-
-    var meal_day0_circle: LinearLayout? = null
-    var meal_day1_circle: LinearLayout? = null
-    var meal_day2_circle: LinearLayout? = null
-
-    var push_comment_text: EditText? = null
-    var push_comment: Button? = null
-
-    var load_comment_progress: ProgressBar? = null
-
+    var aq: AQuery? = null
     var mDay = 0
     var mMealDay = 0
-
-    var aq: AQuery? = null
-
-    var commentList: ListView? = null
-    var commentAdapter: CommentAdapter? = null
-
-    var choiceBar: SeekBar? = null
-    var choiceGood: TextView? = null
-    var choiceBad: TextView? = null
+    var mMealListView: ListView? = null
+    var mMealListViewAdapter: MealAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
-        title = mInflater.kg_meal_day
-        data0 = mInflater.kg_meal_data0
-        data1 = mInflater.kg_meal_data1
-        data2 = mInflater.kg_meal_data2
-        data3 = mInflater.kg_meal_data3
-        data4 = mInflater.kg_meal_data4
-        data5 = mInflater.kg_meal_data5
-        meal_progress = mInflater.kg_meal_progress
-        meal_contents = mInflater.kg_meal_contents
-        meal_day0_circle = mInflater.kg_meal_day0_circle
-        meal_day0_circle!!.setOnClickListener(chageMealDay())
-        meal_day1_circle = mInflater.kg_meal_day1_circle
-        meal_day1_circle!!.setOnClickListener(chageMealDay())
-        meal_day2_circle = mInflater.kg_meal_day2_circle
-        meal_day2_circle!!.setOnClickListener(chageMealDay())
-        push_comment_text = mInflater.kg_meal_push_comment_text
-        push_comment = mInflater.kg_meal_push_comment_button
-        push_comment!!.setOnClickListener(pushCommentListener())
-
-        load_comment_progress = mInflater.kg_meal_commnet_progress
-        no_meal_text = mInflater.kg_meal_no_meal
-        no_comment_text = mInflater.kg_meal_commnet_nocomment
-
-        commentAdapter = CommentAdapter(activity.applicationContext)
-        commentList = mInflater!!.kg_meal_comment_list
-        commentList!!.adapter = commentAdapter
-
-        choiceBar = mInflater!!.kg_meal_choice_bar
-        choiceBar!!.thumb.mutate().alpha = 0
-        choiceBar!!.setOnTouchListener(object : OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                return true
-            }
-        })
-
-        choiceBad = mInflater!!.kg_meal_choice_bad
-        choiceBad!!.setOnClickListener {
-            val pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
-            val editor = pref.edit()
-            val date = Date()
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-            var data = pref!!.getBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), false)
-            if (!data) {
-                mealChoice(0, 0)
-                editor.putBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), true)
-                editor.commit()
-            } else {
-                Toast.makeText(activity.applicationContext, "이미 투표하셨습니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
-        choiceGood = mInflater!!.kg_meal_choice_good
-        choiceGood!!.setOnClickListener {
-            var pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
-            var editor = pref!!.edit()
-            val date = Date()
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-            var data = pref!!.getBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), false)
-            if (!data) {
-                mealChoice(0, 1)
-                editor.putBoolean(simpleDateFormat.format(date).toString() + "_" + mMealDay.toString(), true)
-                editor.commit()
-            } else {
-                Toast.makeText(activity.applicationContext, "이미 투표하셨습니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        aq = AQuery(activity.applicationContext)
-
         val oCalendar = Calendar.getInstance()
-        //val week = arrayOf("일", "월", "화", "수", "목", "금", "토")
-        var dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
+        val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
 
-        //println("현재 요일: " + week[oCalendar.get(Calendar.DAY_OF_WEEK) - 1] + "요일")
+        mMealListView = mInflater.findViewById(R.id.kg_meal_contents) as ListView
+        mMealListViewAdapter = MealAdapter(inflater.context.applicationContext)
+        mMealListView!!.adapter = mMealListViewAdapter
 
         mDay = dayOfWeek
         mMealDay = 0
-
-        getMeals(mDay, mMealDay)
-
-        commentList!!.visibility = VISIBLE
-        no_comment_text!!.visibility = GONE
-        load_comment_progress!!.visibility = GONE
-
-        //val pref = activity.getSharedPreferences("KG_MEAL", MODE_PRIVATE)
-        //val editor = pref.edit()
-        //editor.clear()
-        //editor.commit()
-
-        loadComment()
-
+        aq = AQuery(activity.applicationContext)
+        // 오늘 날자 급식을 가져옴
+        getMeals(mDay)
+        // 오늘 날자 만족도를 가져옴
         mealChoice(1)
-
         return mInflater
     }
 
@@ -174,15 +151,12 @@ class MealFragment : Fragment() {
     fun mealChoice(onlyChoice: Int, choice: Int = 3) {
         val date = Date()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
         val hashMap = HashMap<String, Any>()
+
         hashMap.put("KG_CONTENTS_TIME", mMealDay)
         hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
         hashMap.put("KG_CONTENTS_CHOICE", choice)
         hashMap.put("KG_CONTENTS_ONLYCHOICE", onlyChoice)
-
-        choiceBar!!.max = 100
-        choiceBar!!.progress = 0
 
         aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_mealChoice.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
             override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
@@ -190,126 +164,10 @@ class MealFragment : Fragment() {
                     val good = jsonObject.getInt("good")
                     val bad = jsonObject.getInt("bad")
 
-                    choiceBar!!.max = good + bad
-                    choiceBar!!.progress = good
-
                     Log.i("choice", "good = $good, bad = $bad")
                 }
             }
         })
-    }
-
-    fun chageMealDay(): View.OnClickListener {
-        val change = object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                when (v!!.id) {
-                    R.id.kg_meal_day0_circle -> {
-                        mMealDay = 0
-                    }
-                    R.id.kg_meal_day1_circle -> {
-                        mMealDay = 1
-                    }
-                    R.id.kg_meal_day2_circle -> {
-                        mMealDay = 2
-                    }
-                }
-                no_meal_text!!.visibility = GONE
-                getMeals(mDay, mMealDay)
-                loadComment()
-                mealChoice(1)
-            }
-        }
-        return change
-    }
-
-    fun pushCommentListener(): View.OnClickListener {
-        return object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                val pushText = push_comment_text!!.text.toString()
-                val hashMap = HashMap<String, Any>()
-
-                val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(push_comment_text!!.windowToken, 0)
-
-                val date = Date()
-                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-                hashMap.put("KG_ID", (activity.findViewById(R.id.kg_profile_nickname) as TextView).text)
-                hashMap.put("KG_COMMENT", pushText)
-                hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
-                hashMap.put("KG_CONTENTS_ID", 1)
-                hashMap.put("KG_CONTENTS_TIME", mMealDay)
-                aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_pushComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
-                    override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
-
-                    }
-                })
-
-                push_comment_text!!.text.clear()
-                loadComment()
-            }
-        }
-    }
-
-    // 불러오기
-    fun loadComment() {
-        commentAdapter!!.clear()
-        commentAdapter!!.notifyDataSetChanged()
-        Thread {
-            val progress = Handler(Looper.getMainLooper())
-            progress.postDelayed(Runnable {
-                commentList!!.visibility = GONE
-                load_comment_progress!!.visibility = VISIBLE
-                no_comment_text!!.visibility = GONE
-            }, 0)
-
-            // 콘텐츠 아이디 2
-            // 날자 2017-01-24
-            // 콘텐츠 시간 0
-            val hashMap = HashMap<String, Any>()
-
-            val date = Date()
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-            hashMap.put("KG_CONTENTS_ID", 1)
-            hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
-            hashMap.put("KG_CONTENTS_TIME", mMealDay)
-
-            aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_loadComment.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
-                override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
-                    if (jsonObject != null) {
-                        val state = jsonObject.getString("state")
-                        Log.i("state", state.toString())
-                        if (state == "true") {
-                            val jsonArray = jsonObject.getJSONArray("comment_list")
-                            if (jsonArray != null) {
-                                for (i in 0..jsonArray.length() - 1) {
-                                    val container = jsonArray.getJSONObject(i)
-                                    val id = container.getString("id")
-                                    val comment = container.getString("comment")
-                                    val date = container.getString("date")
-
-                                    Log.i("comment", "$id $comment $date")
-
-                                    commentAdapter!!.addComment(CommentData(id.toString(), comment.toString(), date.toString()))
-                                }
-                                if (commentAdapter!!.comments.size > 0) {
-                                    commentAdapter!!.reverse()
-                                    commentAdapter!!.notifyDataSetChanged()
-                                    load_comment_progress!!.visibility = GONE
-                                    no_comment_text!!.visibility = GONE
-                                    commentList!!.visibility = VISIBLE
-                                }
-                            }
-                        } else {
-                            load_comment_progress!!.visibility = GONE
-                            no_comment_text!!.visibility = VISIBLE
-                            commentList!!.visibility = GONE
-                        }
-                    }
-                }
-            })
-        }.start()
     }
 
     fun String.splitKeeping(str: String): List<String> {
@@ -325,34 +183,9 @@ class MealFragment : Fragment() {
     }
 
     // day (일,월,화,수,목,금,토)
-    // mealDay (아침,점심,저녁)
-    fun getMeals(day: Int, _mealDay: Int) {
-        var mealDay = _mealDay
+    fun getMeals(day: Int) {
         var isMeal = false
-
-        no_meal_text!!.visibility = GONE
-        meal_contents!!.visibility = GONE
-
-        if (_mealDay == 0) {
-            mealDay = 1
-            title!!.text = "아침"
-            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
-            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-        } else if (_mealDay == 1) {
-            mealDay = 3
-            title!!.text = "점심"
-            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
-            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-        } else if (_mealDay == 2) {
-            mealDay = 5
-            title!!.text = "저녁"
-            meal_day0_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-            meal_day1_circle!!.setBackgroundResource(R.drawable.circle_shape_white)
-            meal_day2_circle!!.setBackgroundResource(R.drawable.circle_shape_black)
-        }
-
+        val mealDay = arrayOf(1, 3, 5)
         Thread {
             try {
                 val process = Handler(Looper.getMainLooper())
@@ -361,63 +194,57 @@ class MealFragment : Fragment() {
                 val doc = Jsoup.connect("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100").get()
                 val contents = doc.select("table.foodbox tbody tr")
                 val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
-                val data = contents[day].children()[mealDay].toString().splitKeeping("<br>", "<td>", "</td>")
+
                 process.postDelayed(Runnable {
-                    MainActivity.Instance.instance!!.main_title!!.text = day_contents
-                    var meal_count = 0
-                    if (!isMeal) {
-                        for (item in data) {
-                            if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
-                                continue
+                    mMealListViewAdapter!!.clear()
+                    var mealContent: MealData
+                    for (mealDayID in mealDay) {
+                        val data = contents[day].children()[mealDayID].toString().splitKeeping("<br>", "<td>", "</td>")
+                        MainActivity.Instance.instance!!.main_title!!.text = day_contents
+                        mealContent = MealData()
+                        var meal_count = 0
+                        if (!isMeal) {
+                            for (item in data) {
+                                if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
+                                    continue
+                                var emItem = ""
+                                if (item[0] == ' ') {
+                                    for (i in 1..item.length - 1) {
+                                        emItem += item[i]
+                                    }
+                                } else
+                                    emItem = item
 
-                            var emItem = ""
-                            if (item[0] == ' ') {
-                                for (i in 1..item.length - 1) {
-                                    emItem += item[i]
-                                }
-                            } else
-                                emItem = item
+                                Log.i("Item", emItem)
 
-                            Log.i("Item", emItem)
+                                isMeal = true
 
-                            isMeal = true
-                            when (meal_count) {
-                                0 -> {
-                                    data0!!.text = emItem
+                                when (meal_count) {
+                                    0 -> {
+                                        mealContent.data0 = emItem
+                                    }
+                                    1 -> {
+                                        mealContent.data1 = emItem
+                                    }
+                                    2 -> {
+                                        mealContent.data2 = emItem
+                                    }
+                                    3 -> {
+                                        mealContent.data3 = emItem
+                                    }
+                                    4 -> {
+                                        mealContent.data4 = emItem
+                                    }
+                                    5 -> {
+                                        mealContent.data5 = emItem
+                                    }
                                 }
-                                1 -> {
-                                    data1!!.text = emItem
-                                }
-                                2 -> {
-                                    data2!!.text = emItem
-                                }
-                                3 -> {
-                                    data3!!.text = emItem
-                                }
-                                4 -> {
-                                    data4!!.text = emItem
-                                }
-                                5 -> {
-                                    data5!!.text = item
-                                }
+                                meal_count += 1
                             }
-                            meal_count += 1
+
+                            if (mealContent != null)
+                                mMealListViewAdapter!!.add(mealContent)
                         }
-                    }
-                    if (isMeal) {
-                        process.postDelayed(Runnable {
-                            meal_progress!!.visibility = GONE
-                            meal_contents!!.visibility = VISIBLE
-                            no_meal_text!!.visibility = GONE
-                            meal_contents!!.visibility = VISIBLE
-                        }, 0)
-                    } else {
-                        process.postDelayed(Runnable {
-                            meal_progress!!.visibility = GONE
-                            meal_contents!!.visibility = VISIBLE
-                            no_meal_text!!.visibility = VISIBLE
-                            meal_contents!!.visibility = GONE
-                        }, 0)
                     }
                 }, 0)
             } catch (e: Exception) {
