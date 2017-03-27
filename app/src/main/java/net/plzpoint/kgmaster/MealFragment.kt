@@ -30,96 +30,109 @@ import android.view.MotionEvent
 import android.content.SharedPreferences
 import android.content.Context.MODE_PRIVATE
 
-class MealData {
-    var day: String = ""
-    var data0: String = ""
-    var data1: String = ""
-    var data2: String = ""
-    var data3: String = ""
-    var data4: String = ""
-    var data5: String = ""
-}
-
-class MealHolder(view: View) {
-    val day: TextView
-    val data0: TextView
-    val data1: TextView
-    val data2: TextView
-    val data3: TextView
-    val data4: TextView
-    val data5: TextView
-    val choice: SeekBar
-
-    init {
-        this.day = view.findViewById(R.id.kg_meal_day) as TextView
-        this.data0 = view.findViewById(R.id.kg_meal_data0) as TextView
-        this.data1 = view.findViewById(R.id.kg_meal_data1) as TextView
-        this.data2 = view.findViewById(R.id.kg_meal_data2) as TextView
-        this.data3 = view.findViewById(R.id.kg_meal_data3) as TextView
-        this.data4 = view.findViewById(R.id.kg_meal_data4) as TextView
-        this.data5 = view.findViewById(R.id.kg_meal_data5) as TextView
-        this.choice = view.findViewById(R.id.kg_meal_choice_bar) as SeekBar
-    }
-}
-
-class MealAdapter(context: Context) : BaseAdapter() {
-    val inflater: LayoutInflater?
-    val meals = ArrayList<MealData>()
-
-    init {
-        inflater = LayoutInflater.from(context)
-    }
-
-    override fun getCount(): Int {
-        return meals.count()
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getItem(position: Int): Any {
-        return meals[position]
-    }
-
-    fun add(meal: MealData) {
-        meals.add(meal)
-    }
-
-    fun reverse() {
-        meals.reverse()
-    }
-
-    fun clear() {
-        meals.clear()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View?
-        val holder: MealHolder?
-        if (convertView == null) {
-            view = inflater!!.inflate(R.layout.kg_meal_content, parent, false)
-            holder = MealHolder(view)
-            view!!.tag = holder
-        } else {
-            view = convertView
-            holder = view!!.tag as MealHolder
-        }
-        holder.day.text = meals[position].day
-        holder.data0.text = meals[position].data0
-        holder.data1.text = meals[position].data1
-        holder.data2.text = meals[position].data2
-        holder.data3.text = meals[position].data3
-        holder.data4.text = meals[position].data4
-        holder.data5.text = meals[position].data5
-        return view
-    }
-}
-
 class MealFragment : Fragment() {
     fun instance(): MealFragment {
         val fragment = MealFragment()
         return fragment
+    }
+
+    class MealData {
+        var day: String = ""
+        var data0: String = ""
+        var data1: String = ""
+        var data2: String = ""
+        var data3: String = ""
+        var data4: String = ""
+        var data5: String = ""
+
+        constructor(day: String, data0: String, data1: String, data2: String, data3: String, data4: String, data5: String) {
+            this.day = day
+            this.data0 = data0
+            this.data1 = data1
+            this.data2 = data2
+            this.data3 = data3
+            this.data4 = data4
+            this.data5 = data5
+        }
+    }
+
+    class MealHolder(view: View) {
+        val day: TextView
+        val data0: TextView
+        val data1: TextView
+        val data2: TextView
+        val data3: TextView
+        val data4: TextView
+        val data5: TextView
+        val choice: SeekBar
+
+        init {
+            this.day = view.findViewById(R.id.kg_meal_day) as TextView
+            this.data0 = view.findViewById(R.id.kg_meal_data0) as TextView
+            this.data1 = view.findViewById(R.id.kg_meal_data1) as TextView
+            this.data2 = view.findViewById(R.id.kg_meal_data2) as TextView
+            this.data3 = view.findViewById(R.id.kg_meal_data3) as TextView
+            this.data4 = view.findViewById(R.id.kg_meal_data4) as TextView
+            this.data5 = view.findViewById(R.id.kg_meal_data5) as TextView
+            this.choice = view.findViewById(R.id.kg_meal_choice_bar) as SeekBar
+        }
+    }
+
+    class MealAdapter(context: Context) : BaseAdapter() {
+        val inflater: LayoutInflater
+        val meals = ArrayList<MealData>()
+
+        init {
+            inflater = LayoutInflater.from(context)
+        }
+
+        override fun getCount(): Int {
+            return meals.count()
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getItem(position: Int): Any {
+            return meals[position]
+        }
+
+        fun add(meal_day: Int, meals: ArrayList<String>) {
+            var day_string = "아침"
+            if (meal_day == 3) {
+                day_string = "점심"
+            } else if (meal_day == 5) {
+                day_string = "저녁"
+            }
+            this.meals.add(MealData(day_string, meals[0], meals[1], meals[2], meals[3], meals[4], meals[5]))
+        }
+
+        fun clear() {
+            meals.clear()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            val view: View
+            val holder: MealHolder?
+            if (convertView == null) {
+                view = inflater.inflate(R.layout.kg_meal_content, parent, false)
+                holder = MealHolder(view)
+                view.tag = holder
+            } else {
+                view = convertView
+                holder = view.tag as MealHolder
+            }
+
+            holder.day.text = meals[position].day
+            holder.data0.text = meals[position].data0
+            holder.data1.text = meals[position].data1
+            holder.data2.text = meals[position].data2
+            holder.data3.text = meals[position].data3
+            holder.data4.text = meals[position].data4
+            holder.data5.text = meals[position].data5
+            return view
+        }
     }
 
     var aq: AQuery? = null
@@ -134,7 +147,7 @@ class MealFragment : Fragment() {
         val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
 
         mMealListView = mInflater.findViewById(R.id.kg_meal_contents) as ListView
-        mMealListViewAdapter = MealAdapter(inflater.context.applicationContext)
+        mMealListViewAdapter = MealAdapter(activity.applicationContext)
         mMealListView!!.adapter = mMealListViewAdapter
 
         mDay = dayOfWeek
@@ -184,72 +197,46 @@ class MealFragment : Fragment() {
 
     // day (일,월,화,수,목,금,토)
     fun getMeals(day: Int) {
-        var isMeal = false
-        val mealDay = arrayOf(1, 3, 5)
+        mMealListViewAdapter!!.clear()
         Thread {
+            val process = Handler(Looper.getMainLooper())
             try {
-                val process = Handler(Looper.getMainLooper())
                 val ssl = SSLConnect()
                 ssl.postHttps("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100", 1000, 1000)
                 val doc = Jsoup.connect("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100").get()
                 val contents = doc.select("table.foodbox tbody tr")
                 val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
-
                 process.postDelayed(Runnable {
-                    mMealListViewAdapter!!.clear()
-                    var mealContent: MealData
-                    for (mealDayID in mealDay) {
-                        val data = contents[day].children()[mealDayID].toString().splitKeeping("<br>", "<td>", "</td>")
+                    val meal_days = intArrayOf(1, 3, 5)
+                    for (meal_day in meal_days) {
+                        val data = contents[day].children()[meal_day].toString().splitKeeping("<br>", "<td>", "</td>")
                         MainActivity.Instance.instance!!.main_title!!.text = day_contents
-                        mealContent = MealData()
                         var meal_count = 0
-                        if (!isMeal) {
-                            for (item in data) {
-                                if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
-                                    continue
-                                var emItem = ""
-                                if (item[0] == ' ') {
-                                    for (i in 1..item.length - 1) {
-                                        emItem += item[i]
-                                    }
-                                } else
-                                    emItem = item
-
-                                Log.i("Item", emItem)
-
-                                isMeal = true
-
-                                when (meal_count) {
-                                    0 -> {
-                                        mealContent.data0 = emItem
-                                    }
-                                    1 -> {
-                                        mealContent.data1 = emItem
-                                    }
-                                    2 -> {
-                                        mealContent.data2 = emItem
-                                    }
-                                    3 -> {
-                                        mealContent.data3 = emItem
-                                    }
-                                    4 -> {
-                                        mealContent.data4 = emItem
-                                    }
-                                    5 -> {
-                                        mealContent.data5 = emItem
-                                    }
+                        val meal_content_datas = ArrayList<String>()
+                        for (item in data) {
+                            if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
+                                continue
+                            var m_item = ""
+                            if (item[0] == ' ') {
+                                for (i in 1..item.length - 1) {
+                                    m_item += item[i]
                                 }
-                                meal_count += 1
+                            } else {
+                                m_item = item
                             }
-
-                            if (mealContent != null)
-                                mMealListViewAdapter!!.add(mealContent)
+                            meal_content_datas.add(meal_count, m_item)
+                            meal_count += 1
                         }
+                        if (meal_content_datas.size > 1)
+                            mMealListViewAdapter!!.add(meal_day, meal_content_datas)
                     }
                 }, 0)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+            process.postDelayed(Runnable {
+                mMealListViewAdapter!!.notifyDataSetChanged()
+            }, 0)
         }.start()
     }
 }
