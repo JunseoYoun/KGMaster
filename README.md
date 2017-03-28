@@ -1,17 +1,13 @@
-# 게임고 마스터!
-
+## 게임고 마스터!
+#### 한국게임과학고등학교 대표 앱!
 ---
-###주요 기능
-- 급식!
-- 공지!
-- 오픈 채팅!
-- 신문!
+### Main Function
+- Meal
+- Notification
+- Schedule
+- News
 
 ---
 ### Tool
 - Android Studio 2.2
-- Kotlin 1.0.4
-
----
-### Library
-- Gride image Library
+- Kotlin 1.0.7
