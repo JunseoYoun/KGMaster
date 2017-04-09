@@ -2,58 +2,26 @@ package net.plzpoint.kgmaster
 
 import android.app.Fragment
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
 import com.androidquery.callback.AjaxStatus
-import kotlinx.android.synthetic.main.contents_nav_header.*
-import kotlinx.android.synthetic.main.kg_meal_fragment.*
-import kotlinx.android.synthetic.main.kg_meal_fragment.view.*
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
 import java.util.*
-import android.view.View.OnTouchListener
-import android.view.MotionEvent
-import android.content.SharedPreferences
-import android.content.Context.MODE_PRIVATE
 
 class MealFragment : Fragment() {
     fun instance(): MealFragment {
         val fragment = MealFragment()
         return fragment
-    }
-
-    class MealData {
-        var day: String = ""
-        var data0: String = ""
-        var data1: String = ""
-        var data2: String = ""
-        var data3: String = ""
-        var data4: String = ""
-        var data5: String = ""
-
-        constructor(day: String, data0: String, data1: String, data2: String, data3: String, data4: String, data5: String) {
-            this.day = day
-            this.data0 = data0
-            this.data1 = data1
-            this.data2 = data2
-            this.data3 = data3
-            this.data4 = data4
-            this.data5 = data5
-        }
     }
 
     class MealHolder(view: View) {
@@ -80,7 +48,7 @@ class MealFragment : Fragment() {
 
     class MealAdapter(context: Context) : BaseAdapter() {
         val inflater: LayoutInflater
-        val meals = ArrayList<MealData>()
+        val meals = ArrayList<MealManager.MealData>()
 
         init {
             inflater = LayoutInflater.from(context)
@@ -96,16 +64,6 @@ class MealFragment : Fragment() {
 
         override fun getItem(position: Int): Any {
             return meals[position]
-        }
-
-        fun add(meal_day: Int, meals: ArrayList<String>) {
-            var day_string = "아침"
-            if (meal_day == 3) {
-                day_string = "점심"
-            } else if (meal_day == 5) {
-                day_string = "저녁"
-            }
-            this.meals.add(MealData(day_string, meals[0], meals[1], meals[2], meals[3], meals[4], meals[5]))
         }
 
         fun clear() {
@@ -140,103 +98,36 @@ class MealFragment : Fragment() {
     var mMealDay = 0
     var mMealListView: ListView? = null
     var mMealListViewAdapter: MealAdapter? = null
+    val mealManager: MealManager
+
+    init {
+        mealManager = MealManager()
+    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        // Initialize
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
         val oCalendar = Calendar.getInstance()
         val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
-
         mMealListView = mInflater.findViewById(R.id.kg_meal_contents) as ListView
         mMealListViewAdapter = MealAdapter(activity.applicationContext)
         mMealListView!!.adapter = mMealListViewAdapter
-
         mDay = dayOfWeek
         mMealDay = 0
         aq = AQuery(activity.applicationContext)
-        // 오늘 날자 급식을 가져옴
-        getMeals(mDay)
-        // 오늘 날자 만족도를 가져옴
-        mealChoice(1)
-        return mInflater
-    }
 
-    // choice : good, bad, null
-    fun mealChoice(onlyChoice: Int, choice: Int = 3) {
-        val date = Date()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        val hashMap = HashMap<String, Any>()
-
-        hashMap.put("KG_CONTENTS_TIME", mMealDay)
-        hashMap.put("KG_CONTENTS_DATE", simpleDateFormat.format(date))
-        hashMap.put("KG_CONTENTS_CHOICE", choice)
-        hashMap.put("KG_CONTENTS_ONLYCHOICE", onlyChoice)
-
-        aq!!.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_mealChoice.php", hashMap, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
-            override fun callback(url: String?, jsonObject: JSONObject?, status: AjaxStatus?) {
-                if (jsonObject != null) {
-                    val good = jsonObject.getInt("good")
-                    val bad = jsonObject.getInt("bad")
-
-                    Log.i("choice", "good = $good, bad = $bad")
-                }
-            }
-        })
-    }
-
-    fun String.splitKeeping(str: String): List<String> {
-        return this.split(str).flatMap { listOf(it, str) }.dropLast(1).filterNot { it.isEmpty() }
-    }
-
-    fun String.splitKeeping(vararg strs: String): List<String> {
-        var res = listOf(this)
-        strs.forEach { str ->
-            res = res.flatMap { it.splitKeeping(str) }
+        // Get Meals
+        mMealListViewAdapter!!.meals.clear()
+        mealManager.getMeal(mDay) {
+            mMealListViewAdapter!!.meals.add(it)
+            mMealListViewAdapter!!.notifyDataSetChanged()
         }
-        return res
-    }
 
-    // day (일,월,화,수,목,금,토)
-    fun getMeals(day: Int) {
-        mMealListViewAdapter!!.clear()
-        Thread {
-            val process = Handler(Looper.getMainLooper())
-            try {
-                val ssl = SSLConnect()
-                ssl.postHttps("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100", 1000, 1000)
-                val doc = Jsoup.connect("https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100").get()
-                val contents = doc.select("table.foodbox tbody tr")
-                val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
-                process.postDelayed(Runnable {
-                    val meal_days = intArrayOf(1, 3, 5)
-                    for (meal_day in meal_days) {
-                        val data = contents[day].children()[meal_day].toString().splitKeeping("<br>", "<td>", "</td>")
-                        MainActivity.Instance.instance!!.main_title!!.text = day_contents
-                        var meal_count = 0
-                        val meal_content_datas = ArrayList<String>()
-                        for (item in data) {
-                            if (item.equals("<br>") || item.equals("<td>") || item.equals("</td>"))
-                                continue
-                            var m_item = ""
-                            if (item[0] == ' ') {
-                                for (i in 1..item.length - 1) {
-                                    m_item += item[i]
-                                }
-                            } else {
-                                m_item = item
-                            }
-                            meal_content_datas.add(meal_count, m_item)
-                            meal_count += 1
-                        }
-                        if (meal_content_datas.size > 1)
-                            mMealListViewAdapter!!.add(meal_day, meal_content_datas)
-                    }
-                }, 0)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            process.postDelayed(Runnable {
-                mMealListViewAdapter!!.notifyDataSetChanged()
-            }, 0)
-        }.start()
+        // Get Choice
+        mealManager.getChoice { good, bad ->
+            Log.i("Meal Choice", "Good : " + good.toString() + " " + bad.toString())
+        }
+
+        return mInflater
     }
 }
