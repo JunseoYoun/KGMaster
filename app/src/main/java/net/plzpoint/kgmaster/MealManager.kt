@@ -32,7 +32,13 @@ open class MealManager {
 
     // 가져온 급식마다 callback을 호출한다. ( (아침, 점심, 저녁), 밥, 반찬1, 반찬2, 반찬3 ... )
     // day = ayOfWeek
-    fun getMeal(day: Int, callback: ((MealManager.MealData) -> Unit)) {
+
+    // mealDay
+    // -1. 아침, 점심, 저녁
+    // 1. 아침
+    // 2. 점심
+    // 3. 저녁
+    fun getMeal(day: Int, mealDay: Int = -1, callback: ((MealManager.MealData) -> Unit)) {
         Thread {
             try {
                 val ssl = SSLConnect()
@@ -42,10 +48,17 @@ open class MealManager {
                 val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
                 val process = Handler(Looper.getMainLooper())
                 process.postDelayed(Runnable {
-                    val meal_days = intArrayOf(1, 3, 5)
+                    var meal_days = ArrayList<Int>()
+                    if (mealDay == -1) {
+                        meal_days.add(1)
+                        meal_days.add(3)
+                        meal_days.add(5)
+                    } else
+                        meal_days.add(mealDay)
+
                     for (meal_day in meal_days) {
                         val data = contents[day].children()[meal_day].toString().splitKeeping("<br>", "<td>", "</td>")
-                        MainActivity.Instance.instance!!.main_title!!.text = day_contents
+                        // MainActivity.Instance.instance!!.main_title!!.text = day_contents
                         var meal_count = 0
                         val meal_content_datas = ArrayList<String>()
                         for (item in data) {
@@ -58,7 +71,6 @@ open class MealManager {
                             else
                                 m_item = item
                             meal_content_datas.add(meal_count, m_item)
-                            Log.i("ASD", m_item)
                             meal_count += 1
                         }
                         if (meal_content_datas.size > 1) {
