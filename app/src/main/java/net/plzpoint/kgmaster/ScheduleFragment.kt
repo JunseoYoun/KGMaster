@@ -108,6 +108,8 @@ class ScheduleFragment : Fragment() {
 
         getSchedule()
 
+        MainActivity.Instance.instance!!.main_title!!.text = "일정"
+
         return mInflater
     }
 

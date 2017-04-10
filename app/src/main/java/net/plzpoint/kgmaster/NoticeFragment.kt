@@ -177,6 +177,8 @@ class NoticeFragment : Fragment() {
         noticeList = mInflater!!.kg_notice_list
         noticeList!!.adapter = noticeAdapter
 
+        MainActivity.Instance.instance!!.main_title!!.text = "공지"
+
         getNotice()
 
         return mInflater

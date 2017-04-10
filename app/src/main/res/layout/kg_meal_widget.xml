@@ -74,6 +74,20 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="right|bottom">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00월 00일"
+                    android:id="@+id/kg_meal_widget_mealMonthDay"/>
+            </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -18,6 +18,7 @@ open class MealManager {
         var data3: String = ""
         var data4: String = ""
         var data5: String = ""
+        var mealMonthDay = ""
 
         constructor(day: String, data0: String, data1: String, data2: String, data3: String, data4: String, data5: String) {
             this.day = day
@@ -80,6 +81,8 @@ open class MealManager {
                             else if (meal_day == 5)
                                 day_string = "저녁"
                             val meal = MealManager.MealData(day_string, meal_content_datas[0], meal_content_datas[1], meal_content_datas[2], meal_content_datas[3], meal_content_datas[4], meal_content_datas[5])
+
+                            meal.mealMonthDay = day_contents
 
                             callback.invoke(meal)
                         }

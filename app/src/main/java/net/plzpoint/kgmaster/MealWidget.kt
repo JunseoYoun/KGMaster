@@ -41,6 +41,9 @@ class MealWidget : AppWidgetProvider() {
             val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
             val plusText = "\n"
 
+            views.setTextColor(R.id.kg_meal_widget_day0, Color.BLACK)
+            views.setTextColor(R.id.kg_meal_widget_day1, Color.GRAY)
+            views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
             views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
             views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
             mealManager.getMeal(dayOfWeek, mealDay) {
@@ -55,12 +58,17 @@ class MealWidget : AppWidgetProvider() {
                 views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
                 views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
                 views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
+                views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, it.mealMonthDay)
 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
+    }
+
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
     }
 
     fun getPendingSelfIntent(context: Context, action: String): PendingIntent {
@@ -80,19 +88,17 @@ class MealWidget : AppWidgetProvider() {
         val componentName = ComponentName(context, MealWidget::class.java)
 
         var mealDay = 0
-        if (mealDayText0Action.equals(intent!!.action)){
+        if (mealDayText0Action.equals(intent!!.action)) {
             mealDay = 1
             views.setTextColor(R.id.kg_meal_widget_day0, Color.BLACK)
             views.setTextColor(R.id.kg_meal_widget_day1, Color.GRAY)
             views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
-        }
-        else if (mealDayText1Action.equals((intent!!.action))){
+        } else if (mealDayText1Action.equals((intent!!.action))) {
             mealDay = 3
             views.setTextColor(R.id.kg_meal_widget_day0, Color.GRAY)
             views.setTextColor(R.id.kg_meal_widget_day1, Color.BLACK)
             views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
-        }
-        else if (mealDayText2Action.equals(intent!!.action)){
+        } else if (mealDayText2Action.equals(intent!!.action)) {
             mealDay = 5
             views.setTextColor(R.id.kg_meal_widget_day0, Color.GRAY)
             views.setTextColor(R.id.kg_meal_widget_day1, Color.GRAY)

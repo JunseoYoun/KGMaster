@@ -18,6 +18,9 @@ class NewsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_news_fragment, container, false)
+
+        MainActivity.Instance.instance!!.main_title!!.text = "뉴스"
+
         return mInflater
     }
 }

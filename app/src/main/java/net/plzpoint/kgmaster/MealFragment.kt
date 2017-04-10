@@ -121,6 +121,7 @@ class MealFragment : Fragment() {
         mealManager.getMeal(mDay) {
             mMealListViewAdapter!!.meals.add(it)
             mMealListViewAdapter!!.notifyDataSetChanged()
+            MainActivity.Instance.instance!!.main_title!!.text = it.mealMonthDay
         }
 
         // Get Choice
