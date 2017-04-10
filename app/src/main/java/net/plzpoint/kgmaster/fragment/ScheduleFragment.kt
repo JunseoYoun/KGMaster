@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.fragment
 
 import android.app.Fragment
 import android.content.Context
@@ -12,6 +12,9 @@ import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.kg_schedule_fragment.view.*
+import net.plzpoint.kgmaster.activity.MainActivity
+import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.utils.SSLConnect
 import org.jsoup.Jsoup
 import java.util.*
 

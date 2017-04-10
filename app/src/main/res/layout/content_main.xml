@@ -6,6 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="net.plzpoint.kgmaster.MainActivity"
+    tools:context="net.plzpoint.kgmaster.activity.MainActivity"
     tools:showIn="@layout/contents_bar">
 </RelativeLayout>

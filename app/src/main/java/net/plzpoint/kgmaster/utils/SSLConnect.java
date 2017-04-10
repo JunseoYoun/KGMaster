@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster;
+package net.plzpoint.kgmaster.utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

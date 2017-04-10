@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.fragment
 
 import android.app.Fragment
 import android.content.Context
@@ -13,6 +13,9 @@ import android.widget.*
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
 import com.androidquery.callback.AjaxStatus
+import net.plzpoint.kgmaster.activity.MainActivity
+import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.utils.MealManager
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat

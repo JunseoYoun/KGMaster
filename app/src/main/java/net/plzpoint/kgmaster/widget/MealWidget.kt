@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.widget
 
 import android.R.attr.*
 import android.app.PendingIntent
@@ -13,6 +13,8 @@ import android.view.View
 import android.content.ComponentName
 import android.graphics.Color
 import android.opengl.Visibility
+import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.utils.MealManager
 
 
 /**

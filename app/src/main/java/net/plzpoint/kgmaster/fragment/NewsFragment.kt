@@ -1,10 +1,12 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.fragment
 
 import android.app.Fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import net.plzpoint.kgmaster.activity.MainActivity
+import net.plzpoint.kgmaster.R
 
 /**
  * Created by junsu on 2017-01-18.

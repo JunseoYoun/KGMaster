@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.fragment
 
 import android.app.Fragment
 import android.content.Context
@@ -21,6 +21,9 @@ import android.webkit.WebViewClient
 import android.webkit.WebView
 import android.content.Intent
 import android.view.KeyEvent
+import net.plzpoint.kgmaster.activity.MainActivity
+import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.utils.SSLConnect
 
 
 /**

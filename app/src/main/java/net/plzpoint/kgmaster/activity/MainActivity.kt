@@ -1,4 +1,4 @@
-package net.plzpoint.kgmaster
+package net.plzpoint.kgmaster.activity
 
 import android.app.FragmentManager
 import android.app.FragmentTransaction
@@ -13,6 +13,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.fragment.MealFragment
+import net.plzpoint.kgmaster.fragment.NewsFragment
+import net.plzpoint.kgmaster.fragment.NoticeFragment
+import net.plzpoint.kgmaster.fragment.ScheduleFragment
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
