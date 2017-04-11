@@ -3,6 +3,7 @@ package net.plzpoint.kgmaster.utils
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
@@ -62,7 +63,7 @@ open class MealManager(context: Context) {
     // 1. 아침
     // 2. 점심
     // 3. 저녁
-    fun getMeal(day: Int, mealDay: Int = -1, callback: ((md : MealData, time : Int) -> Unit)) {
+    fun getMeal(day: Int, mealDay: Int = -1, callback: ((md: MealData, time: Int) -> Unit)) {
         Thread {
             try {
                 var meal_time_counter = 0
@@ -120,23 +121,26 @@ open class MealManager(context: Context) {
     }
 
     fun getChoice(date: String, time: Int, callback: (good: Int, bad: Int) -> Unit) {
-        aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_getMeal.php?KG_CONTENTS_DATE=2017-01-16", JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+        aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_getMeal.php?KG_CONTENTS_DATE=" + date, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
             override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
                 if (`object` != null) {
                     val jsonObject: JSONObject = `object`.getJSONObject("m" + time.toString())
                     callback.invoke((jsonObject["good"] as String).toInt(), (jsonObject["bad"] as String).toInt())
-
-                    //for (key in `object`.keys()) {
-                    //    val jsonObject: JSONObject = `object`.getJSONObject(key)
-                    //    callback.invoke((jsonObject["good"] as String).toInt(), (jsonObject["bad"] as String).toInt())
-                    //}
                 }
             }
         })
     }
 
-    fun setChoice(data: String, time: Int, choice: Int, callback: (good: Int, bad: Int) -> Unit) {
-
+    fun setChoice(date: String, time: Int, choice: Int, callback: (good: Int, bad: Int) -> Unit) {
+        aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_setMeal.php?KG_CONTENTS_DATE=" + date +
+                "&KG_CONTENTS_TIME=" + time.toString() +
+                "&KG_CONTENTS_CHOICE=" + choice.toString(), JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+            override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
+                if (`object` != null) {
+                    callback.invoke((`object`["good"] as String).toInt(), (`object`["bad"] as String).toInt())
+                }
+            }
+        })
     }
 
     fun String.splitKeeping(str: String): List<String> {
