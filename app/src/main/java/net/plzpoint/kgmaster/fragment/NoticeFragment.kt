@@ -136,10 +136,6 @@ class NoticeFragment : Fragment() {
     var noticeList: ListView? = null
     var noticeProgress: ProgressBar? = null
 
-    var notice_webView: WebView? = null
-    var notice_webViewPanel: LinearLayout? = null
-    var notice_webViewTitle: TextView? = null
-
     var webIntent: Intent? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -154,11 +150,6 @@ class NoticeFragment : Fragment() {
         })
 
         noticeProgress = mInflater!!.kg_notice_progress
-
-        notice_webView = mInflater!!.kg_notice_webview
-        notice_webViewPanel = mInflater!!.kg_notice_webview_panel
-        notice_webViewTitle = mInflater!!.kg_notice_webview_title
-
         noticeAdapter = NoticeAdapter(activity.applicationContext)
         noticeAdapter!!.noticeListener = object : NoticeItemClickListener {
             override fun onNoticeListener(data: NoticeData) {
@@ -191,7 +182,6 @@ class NoticeFragment : Fragment() {
         Thread {
             val progress = Handler(Looper.getMainLooper())
             progress.postDelayed(Runnable {
-                MainActivity.Instance.instance!!.main_title!!.text = "공지사항"
                 noticeProgress!!.visibility = VISIBLE
                 noticeList!!.visibility = GONE
             }, 0)

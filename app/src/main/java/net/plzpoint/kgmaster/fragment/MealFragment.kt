@@ -7,10 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import com.androidquery.AQuery
 import net.plzpoint.kgmaster.R
 import net.plzpoint.kgmaster.activity.MainActivity
@@ -105,6 +102,7 @@ class MealFragment : Fragment() {
     var mMealListView: ListView? = null
     var mMealListViewAdapter: MealAdapter? = null
     var mealManager: MealManager? = null
+    var mealProgress: ProgressBar? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Initialize
@@ -122,9 +120,10 @@ class MealFragment : Fragment() {
         mDay = dayOfWeek
         aq = AQuery(activity.applicationContext)
         mealManager = MealManager(activity.applicationContext)
+        mealProgress = mInflater!!.findViewById(R.id.kg_meal_progress) as ProgressBar
 
-        Log.i("Date", today)
-
+        mealProgress!!.visibility = View.VISIBLE
+        mMealListView!!.visibility = View.INVISIBLE
         // Get Meals
         mMealListViewAdapter!!.meals.clear()
         mealManager!!.getMeal(mDay) { md, time ->
@@ -150,6 +149,9 @@ class MealFragment : Fragment() {
                 SetMealChoice(md, good, bad)
                 mMealListViewAdapter!!.notifyDataSetChanged()
             })
+
+            mealProgress!!.visibility = View.INVISIBLE
+            mMealListView!!.visibility = View.VISIBLE
             mMealListViewAdapter!!.meals.add(md)
             mMealListViewAdapter!!.notifyDataSetChanged()
             MainActivity.Instance.instance!!.main_title!!.text = md.mealMonthDay

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.TextView
 import kotlinx.android.synthetic.main.kg_schedule_fragment.view.*
 import net.plzpoint.kgmaster.activity.MainActivity
@@ -100,12 +101,13 @@ class ScheduleFragment : Fragment() {
 
     var scheduleList: ListView? = null
     var scheduleAdapter: ScheduleAdapter? = null
+    var scheduleProgress: ProgressBar? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val mInflater = inflater!!.inflate(R.layout.kg_schedule_fragment, container, false)
 
+        scheduleProgress = mInflater!!.kg_scheul_progress
         scheduleAdapter = ScheduleAdapter(activity.applicationContext)
-
         scheduleList = mInflater.kg_schedule_list
         scheduleList!!.adapter = scheduleAdapter
 
@@ -116,12 +118,12 @@ class ScheduleFragment : Fragment() {
         return mInflater
     }
 
-    // TODO : 오늘 날자로 setPosition 해야함
     fun getSchedule() {
         Thread {
             val progress = Handler(Looper.getMainLooper())
             progress.postDelayed(Runnable {
-
+                scheduleProgress!!.visibility = View.VISIBLE
+                scheduleList!!.visibility = View.GONE
             }, 0)
 
             try {
@@ -143,12 +145,13 @@ class ScheduleFragment : Fragment() {
                         scheduleAdapter!!.addSchedule(ScheduleData(main_contents_day, main_contents_schedule.text()))
                     }
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
             progress.postDelayed(Runnable {
+                scheduleList!!.visibility = View.VISIBLE
+                scheduleProgress!!.visibility = View.GONE
                 scheduleAdapter!!.notifyDataSetChanged()
             }, 0)
         }.start()
