@@ -3,22 +3,17 @@ package net.plzpoint.kgmaster.fragment
 import android.app.Fragment
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.BaseAdapter
+import android.widget.ListView
+import android.widget.SeekBar
+import android.widget.TextView
 import com.androidquery.AQuery
-import com.androidquery.callback.AjaxCallback
-import com.androidquery.callback.AjaxStatus
-import net.plzpoint.kgmaster.activity.MainActivity
 import net.plzpoint.kgmaster.R
+import net.plzpoint.kgmaster.activity.MainActivity
 import net.plzpoint.kgmaster.utils.MealManager
-import org.json.JSONObject
-import org.jsoup.Jsoup
-import java.text.SimpleDateFormat
 import java.util.*
 
 class MealFragment : Fragment() {
@@ -37,6 +32,9 @@ class MealFragment : Fragment() {
         val data5: TextView
         val choice: SeekBar
 
+        val good: TextView
+        val bad: TextView
+
         init {
             this.day = view.findViewById(R.id.kg_meal_day) as TextView
             this.data0 = view.findViewById(R.id.kg_meal_data0) as TextView
@@ -46,6 +44,9 @@ class MealFragment : Fragment() {
             this.data4 = view.findViewById(R.id.kg_meal_data4) as TextView
             this.data5 = view.findViewById(R.id.kg_meal_data5) as TextView
             this.choice = view.findViewById(R.id.kg_meal_choice_bar) as SeekBar
+
+            this.good = view.findViewById(R.id.kg_meal_choice_good) as TextView
+            this.bad = view.findViewById(R.id.kg_meal_choice_bad) as TextView
         }
     }
 
@@ -69,13 +70,10 @@ class MealFragment : Fragment() {
             return meals[position]
         }
 
-        fun clear() {
-            meals.clear()
-        }
-
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val view: View
             val holder: MealHolder?
+
             if (convertView == null) {
                 view = inflater.inflate(R.layout.kg_meal_content, parent, false)
                 holder = MealHolder(view)
@@ -92,6 +90,10 @@ class MealFragment : Fragment() {
             holder.data3.text = meals[position].data3
             holder.data4.text = meals[position].data4
             holder.data5.text = meals[position].data5
+            holder.choice.max = meals[position].badChoice + meals[position].goodChoice
+            holder.choice.progress = meals[position].goodChoice
+            holder.good.setOnClickListener(meals[position].goodCallback)
+            holder.bad.setOnClickListener(meals[position].badCallback)
             return view
         }
     }
@@ -101,37 +103,57 @@ class MealFragment : Fragment() {
     var mMealDay = 0
     var mMealListView: ListView? = null
     var mMealListViewAdapter: MealAdapter? = null
-    val mealManager: MealManager
-
-    init {
-        mealManager = MealManager()
-    }
+    var mealManager: MealManager? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Initialize
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
         val oCalendar = Calendar.getInstance()
         val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
+
         mMealListView = mInflater.findViewById(R.id.kg_meal_contents) as ListView
         mMealListViewAdapter = MealAdapter(activity.applicationContext)
         mMealListView!!.adapter = mMealListViewAdapter
         mDay = dayOfWeek
         mMealDay = 0
         aq = AQuery(activity.applicationContext)
+        mealManager = MealManager(activity.applicationContext)
 
         // Get Meals
         mMealListViewAdapter!!.meals.clear()
-        mealManager.getMeal(mDay) {
-            mMealListViewAdapter!!.meals.add(it)
+        mealManager!!.getMeal(mDay) { md, time ->
+            // Good
+            md.goodCallback = object : View.OnClickListener {
+                override fun onClick(p0: View?) {
+                    mealManager!!.setChoice("2017-01-16", time, 1) { good, bad ->
+                        SetMealChoice(md, good, bad)
+                        mMealListViewAdapter!!.notifyDataSetChanged()
+                    }
+                }
+            }
+            // Bad
+            md.badCallback = object : View.OnClickListener {
+                override fun onClick(p0: View?) {
+                    mealManager!!.setChoice("2017-01-16", time, 0) { good, bad ->
+                        SetMealChoice(md, good, bad)
+                        mMealListViewAdapter!!.notifyDataSetChanged()
+                    }
+                }
+            }
+            mealManager!!.getChoice("2017-07-16", time, { good, bad ->
+                SetMealChoice(md, good, bad)
+                mMealListViewAdapter!!.notifyDataSetChanged()
+            })
+            mMealListViewAdapter!!.meals.add(md)
             mMealListViewAdapter!!.notifyDataSetChanged()
-            MainActivity.Instance.instance!!.main_title!!.text = it.mealMonthDay
-        }
-
-        // Get Choice
-        mealManager.getChoice { good, bad ->
-            Log.i("Meal Choice", "Good : " + good.toString() + " " + bad.toString())
+            MainActivity.Instance.instance!!.main_title!!.text = md.mealMonthDay
         }
 
         return mInflater
+    }
+
+    fun SetMealChoice(data: MealManager.MealData, good: Int, bad: Int) {
+        data.goodChoice = good
+        data.badChoice = bad
     }
 }

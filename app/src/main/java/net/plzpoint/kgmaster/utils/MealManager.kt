@@ -1,15 +1,24 @@
 package net.plzpoint.kgmaster.utils
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import net.plzpoint.kgmaster.utils.SSLConnect
+import android.view.View
+import com.androidquery.AQuery
+import com.androidquery.callback.AjaxCallback
+import com.androidquery.callback.AjaxStatus
+import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.util.*
 
-open class MealManager {
+open class MealManager(context: Context) {
     val url = "https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100"
     val url_food = "table.foodbox tbody tr"
+    var aq: AQuery
+
+    init {
+        aq = AQuery(context)
+    }
 
     open class MealData {
         var day: String = ""
@@ -20,6 +29,20 @@ open class MealManager {
         var data4: String = ""
         var data5: String = ""
         var mealMonthDay = ""
+
+        var goodChoice = 0
+        var badChoice = 0
+
+        var goodCallback = object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+
+            }
+        }
+        var badCallback = object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+
+            }
+        }
 
         constructor(day: String, data0: String, data1: String, data2: String, data3: String, data4: String, data5: String) {
             this.day = day
@@ -34,15 +57,15 @@ open class MealManager {
 
     // 가져온 급식마다 callback을 호출한다. ( (아침, 점심, 저녁), 밥, 반찬1, 반찬2, 반찬3 ... )
     // day = ayOfWeek
-
     // mealDay
     // -1. 아침, 점심, 저녁
     // 1. 아침
     // 2. 점심
     // 3. 저녁
-    fun getMeal(day: Int, mealDay: Int = -1, callback: ((MealData) -> Unit)) {
+    fun getMeal(day: Int, mealDay: Int = -1, callback: ((md : MealData, time : Int) -> Unit)) {
         Thread {
             try {
+                var meal_time_counter = 0
                 val ssl = SSLConnect()
                 ssl.postHttps(url, 1000, 1000)
                 val doc = Jsoup.connect(url).get()
@@ -85,7 +108,8 @@ open class MealManager {
 
                             meal.mealMonthDay = day_contents
 
-                            callback.invoke(meal)
+                            callback.invoke(meal, meal_time_counter)
+                            meal_time_counter += 1
                         }
                     }
                 }, 0)
@@ -95,9 +119,24 @@ open class MealManager {
         }.start()
     }
 
-    // 아무것도 넣지 않거나 -1이면 만족도만 가져온다.
-    fun getChoice(dayTime: Int = -1, callback: (good: Int, bad: Int) -> Unit) {
-        callback.invoke(0, 0)
+    fun getChoice(date: String, time: Int, callback: (good: Int, bad: Int) -> Unit) {
+        aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_getMeal.php?KG_CONTENTS_DATE=2017-01-16", JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+            override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
+                if (`object` != null) {
+                    val jsonObject: JSONObject = `object`.getJSONObject("m" + time.toString())
+                    callback.invoke((jsonObject["good"] as String).toInt(), (jsonObject["bad"] as String).toInt())
+
+                    //for (key in `object`.keys()) {
+                    //    val jsonObject: JSONObject = `object`.getJSONObject(key)
+                    //    callback.invoke((jsonObject["good"] as String).toInt(), (jsonObject["bad"] as String).toInt())
+                    //}
+                }
+            }
+        })
+    }
+
+    fun setChoice(data: String, time: Int, choice: Int, callback: (good: Int, bad: Int) -> Unit) {
+
     }
 
     fun String.splitKeeping(str: String): List<String> {

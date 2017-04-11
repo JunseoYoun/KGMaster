@@ -21,18 +21,16 @@ import net.plzpoint.kgmaster.utils.MealManager
  * Implementation of App Widget functionality.
  */
 class MealWidget : AppWidgetProvider() {
-    val mealManager: MealManager
+    var mealManager: MealManager? = null
     var mealDay: Int = 1
     val mealDayText0Action = "net.plzpoint.kgmaster.pendingAction0"
     val mealDayText1Action = "net.plzpoint.kgmaster.pendingAction1"
     val mealDayText2Action = "net.plzpoint.kgmaster.pendingAction2"
 
-    init {
-        mealManager = MealManager()
-    }
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         // There may be multiple widgets active, so update all of them
+        mealManager = MealManager(context)
+
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.kg_meal_widget)
             views.setOnClickPendingIntent(R.id.kg_meal_widget_day0, getPendingSelfIntent(context, mealDayText0Action))
@@ -48,19 +46,19 @@ class MealWidget : AppWidgetProvider() {
             views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
             views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
             views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-            mealManager.getMeal(dayOfWeek, mealDay) {
+            mealManager!!.getMeal(dayOfWeek, mealDay) { md, time ->
                 val mealsText: CharSequence =
-                        it.data0 + plusText +
-                                it.data1 + plusText +
-                                it.data2 + plusText +
-                                it.data3 + plusText +
-                                it.data4 + plusText +
-                                it.data5
+                        md.data0 + plusText +
+                                md.data1 + plusText +
+                                md.data2 + plusText +
+                                md.data3 + plusText +
+                                md.data4 + plusText +
+                                md.data5
 
                 views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
                 views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
                 views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
-                views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, it.mealMonthDay)
+                views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
@@ -81,6 +79,9 @@ class MealWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
+
+        mealManager = MealManager(context!!)
+
         val views = RemoteViews(context!!.packageName, R.layout.kg_meal_widget)
         val oCalendar = Calendar.getInstance()
         val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
@@ -109,18 +110,19 @@ class MealWidget : AppWidgetProvider() {
 
         views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
         views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-        mealManager.getMeal(dayOfWeek, mealDay) {
+        mealManager!!.getMeal(dayOfWeek, mealDay) { md, time ->
             val mealsText: CharSequence =
-                    it.data0 + plusText +
-                            it.data1 + plusText +
-                            it.data2 + plusText +
-                            it.data3 + plusText +
-                            it.data4 + plusText +
-                            it.data5
+                    md.data0 + plusText +
+                            md.data1 + plusText +
+                            md.data2 + plusText +
+                            md.data3 + plusText +
+                            md.data4 + plusText +
+                            md.data5
 
             views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
             views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
             views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
+            views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
             appWidgetManager.updateAppWidget(componentName, views)
         }
         appWidgetManager.updateAppWidget(componentName, views)
