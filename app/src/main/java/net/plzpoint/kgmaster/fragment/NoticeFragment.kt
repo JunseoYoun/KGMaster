@@ -196,7 +196,6 @@ class NoticeFragment : Fragment() {
                         val temp_text = main_contents.select("td")[0].select("a")
                         val text = temp_text.text()
                         val tag = "https://www.game.hs.kr/2013/" + temp_text.attr("href")
-                        Log.i("Tag", tag)
                         val view = main_contents.select("td")[3].text()
                         noticeAdapter!!.addNotice(NoticeData(day, text, "조회수 : " + view, tag))
                     }
