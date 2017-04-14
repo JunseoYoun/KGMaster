@@ -13,7 +13,7 @@ import org.jsoup.Jsoup
 import java.util.*
 
 open class MealManager(context: Context) {
-    val url = "https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100"
+    val url = "https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100&date="
     val url_food = "table.foodbox tbody tr"
     var aq: AQuery
 
@@ -57,19 +57,20 @@ open class MealManager(context: Context) {
     }
 
     // 가져온 급식마다 callback을 호출한다. ( (아침, 점심, 저녁), 밥, 반찬1, 반찬2, 반찬3 ... )
-    // day = ayOfWeek
+    // day = dayOfWeek
     // mealDay
     // -1. 아침, 점심, 저녁
     // 1. 아침
     // 2. 점심
     // 3. 저녁
-    fun getMeal(day: Int, mealDay: Int = -1, callback: ((md: MealData, time: Int) -> Unit)) {
+    fun getMeal(date: String, day: Int, mealDay: Int = -1, callback: ((md: MealData, time: Int) -> Unit)) {
         Thread {
             try {
+                var newUrl = url + date
                 var meal_time_counter = 0
                 val ssl = SSLConnect()
-                ssl.postHttps(url, 1000, 1000)
-                val doc = Jsoup.connect(url).get()
+                ssl.postHttps(newUrl, 1000, 1000)
+                val doc = Jsoup.connect(newUrl).get()
                 val contents = doc.select(url_food)
                 val day_contents = contents[day].children()[0].getElementsByTag("strong").text()
                 val process = Handler(Looper.getMainLooper())

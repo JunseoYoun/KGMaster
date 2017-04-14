@@ -15,6 +15,7 @@ import android.graphics.Color
 import android.opengl.Visibility
 import net.plzpoint.kgmaster.R
 import net.plzpoint.kgmaster.utils.MealManager
+import java.text.SimpleDateFormat
 
 
 /**
@@ -22,14 +23,30 @@ import net.plzpoint.kgmaster.utils.MealManager
  */
 class MealWidget : AppWidgetProvider() {
     var mealManager: MealManager? = null
+
     var mealDay: Int = 1
+
     val mealDayText0Action = "net.plzpoint.kgmaster.pendingAction0"
     val mealDayText1Action = "net.plzpoint.kgmaster.pendingAction1"
     val mealDayText2Action = "net.plzpoint.kgmaster.pendingAction2"
 
+    var year = ""
+    var month = ""
+    var day = ""
+    var masterDay = ""
+    var simpleDateFormat = SimpleDateFormat("yyyy-MM")
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         // There may be multiple widgets active, so update all of them
         mealManager = MealManager(context)
+
+        simpleDateFormat = SimpleDateFormat("yyyy")
+        year = simpleDateFormat.format(Date())
+        simpleDateFormat = SimpleDateFormat("MM")
+        month = simpleDateFormat.format(Date())
+        simpleDateFormat = SimpleDateFormat("dd")
+        day = simpleDateFormat.format(Date())
+        masterDay = year.plus("-").plus(month).plus("-").plus(day)
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.kg_meal_widget)
@@ -46,7 +63,7 @@ class MealWidget : AppWidgetProvider() {
             views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
             views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
             views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-            mealManager!!.getMeal(dayOfWeek, mealDay) { md, time ->
+            mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time ->
                 val mealsText: CharSequence =
                         md.data0 + plusText +
                                 md.data1 + plusText +
@@ -91,6 +108,7 @@ class MealWidget : AppWidgetProvider() {
         val componentName = ComponentName(context, MealWidget::class.java)
 
         var mealDay = 0
+
         if (mealDayText0Action.equals(intent!!.action)) {
             mealDay = 1
             views.setTextColor(R.id.kg_meal_widget_day0, Color.BLACK)
@@ -110,7 +128,7 @@ class MealWidget : AppWidgetProvider() {
 
         views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
         views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-        mealManager!!.getMeal(dayOfWeek, mealDay) { md, time ->
+        mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time ->
             val mealsText: CharSequence =
                     md.data0 + plusText +
                             md.data1 + plusText +

@@ -98,40 +98,121 @@ class MealFragment : Fragment() {
     }
 
     var aq: AQuery? = null
-    var mDay = 0
     var mMealListView: ListView? = null
     var mMealListViewAdapter: MealAdapter? = null
     var mealManager: MealManager? = null
     var mealProgress: ProgressBar? = null
 
+    var dayNum = 0
+    // 2017-04
+    var year = ""
+    var month = ""
+    var day = ""
+
+    // 2017-04-15
+    var masterDay = ""
+    var simpleDateFormat = SimpleDateFormat("yyyy-MM")
+    var calendar = Calendar.getInstance()
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Initialize
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
-        val d = Date()
-        val sdf = SimpleDateFormat("yyyy-MM-dd")
-        val today = sdf.format(d)
-
-        val oCalendar = Calendar.getInstance()
-        val dayOfWeek = oCalendar.get(Calendar.DAY_OF_WEEK) - 1
 
         mMealListView = mInflater.findViewById(R.id.kg_meal_contents) as ListView
         mMealListViewAdapter = MealAdapter(activity.applicationContext)
         mMealListView!!.adapter = mMealListViewAdapter
-        mDay = dayOfWeek
         aq = AQuery(activity.applicationContext)
         mealManager = MealManager(activity.applicationContext)
         mealProgress = mInflater!!.findViewById(R.id.kg_meal_progress) as ProgressBar
 
+        todayCal()
+        getMeal()
+
         mealProgress!!.visibility = View.VISIBLE
         mMealListView!!.visibility = View.INVISIBLE
+
+        return mInflater
+    }
+
+    fun todayCal() {
+        simpleDateFormat = SimpleDateFormat("yyyy")
+        year = simpleDateFormat.format(Date())
+        simpleDateFormat = SimpleDateFormat("MM")
+        month = simpleDateFormat.format(Date())
+        simpleDateFormat = SimpleDateFormat("dd")
+        day = simpleDateFormat.format(Date())
+
+        masterCal()
+    }
+
+    fun tomorrowCal() {
+        val max = calendar.getMaximum(Calendar.DAY_OF_MONTH)
+        var minDay = day.toInt()
+        var minMonth = month.toInt()
+        var minYear = year.toInt()
+
+        minDay += 1
+        if (max < minDay) {
+            minDay = 1
+            minMonth += 1
+            if (12 < minMonth) {
+                minMonth = 1
+                minYear += 1
+            }
+        }
+        day = minDay.toString()
+        month = minMonth.toString()
+        year = minYear.toString()
+
+        masterCal()
+    }
+
+    fun yesterdayCal() {
+        var minDay = day.toInt()
+        var minMonth = month.toInt()
+        var minYear = year.toInt()
+
+        minDay -= 1
+        if (minDay < 1) {
+            minMonth -= 1
+            if (minMonth < 1) {
+                minMonth = 12
+                minYear -= 1
+            }
+        }
+        day = minDay.toString()
+        month = minMonth.toString()
+        year = minYear.toString()
+
+        masterCal()
+    }
+
+    fun masterCal() {
+        masterDay = year.plus("-").plus(month).plus("-").plus(day)
+        Log.i("Master Day", masterDay)
+
+        simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        // 특정날자 요일
+        val date = simpleDateFormat.parse(masterDay)
+        calendar.time = date
+        dayNum = calendar.get(Calendar.DAY_OF_WEEK) - 1
+    }
+
+    fun setMealChoice(data: MealManager.MealData, good: Int, bad: Int) {
+        data.goodChoice = good
+        data.badChoice = bad
+    }
+
+    fun getMeal() {
         // Get Meals
         mMealListViewAdapter!!.meals.clear()
-        mealManager!!.getMeal(mDay) { md, time ->
+        mealManager!!.getMeal(masterDay, dayNum) { md, time ->
             // Good
             md.goodCallback = object : View.OnClickListener {
                 override fun onClick(p0: View?) {
-                    mealManager!!.setChoice(today, time, 1) { good, bad ->
-                        SetMealChoice(md, good, bad)
+                    mealManager!!.setChoice(masterDay, time, 1) { good, bad ->
+                        setMealChoice(md, good, bad)
                         mMealListViewAdapter!!.notifyDataSetChanged()
                     }
                 }
@@ -139,14 +220,15 @@ class MealFragment : Fragment() {
             // Bad
             md.badCallback = object : View.OnClickListener {
                 override fun onClick(p0: View?) {
-                    mealManager!!.setChoice(today, time, 0) { good, bad ->
-                        SetMealChoice(md, good, bad)
+                    mealManager!!.setChoice(masterDay, time, 0) { good, bad ->
+                        setMealChoice(md, good, bad)
                         mMealListViewAdapter!!.notifyDataSetChanged()
                     }
                 }
             }
-            mealManager!!.getChoice(today, time, { good, bad ->
-                SetMealChoice(md, good, bad)
+
+            mealManager!!.getChoice(masterDay, time, { good, bad ->
+                setMealChoice(md, good, bad)
                 mMealListViewAdapter!!.notifyDataSetChanged()
             })
 
@@ -156,12 +238,5 @@ class MealFragment : Fragment() {
             mMealListViewAdapter!!.notifyDataSetChanged()
             MainActivity.Instance.instance!!.main_title!!.text = md.mealMonthDay
         }
-
-        return mInflater
-    }
-
-    fun SetMealChoice(data: MealManager.MealData, good: Int, bad: Int) {
-        data.goodChoice = good
-        data.badChoice = bad
     }
 }

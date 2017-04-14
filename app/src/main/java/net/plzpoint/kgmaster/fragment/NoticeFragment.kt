@@ -161,7 +161,6 @@ class NoticeFragment : Fragment() {
                     webIntent = Intent(Intent.ACTION_VIEW, uri)
                     startActivity(webIntent)
                 } catch (e: Exception) {
-                    Log.e("Error", "Notice Web View")
                     e.printStackTrace()
                 }
                 super.onNoticeListener(data)
