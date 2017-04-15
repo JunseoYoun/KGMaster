@@ -264,7 +264,7 @@ class MealFragment : Fragment() {
                         setMealChoice(md, good, bad)
                         mMealListViewAdapter!!.notifyDataSetChanged()
                     })
-                }, 500)
+                }, 600)
 
                 mealProgress!!.visibility = View.INVISIBLE
                 noMealLayout!!.visibility = View.INVISIBLE
