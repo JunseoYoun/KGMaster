@@ -1,10 +1,12 @@
 package net.plzpoint.kgmaster.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.androidquery.AQuery
 import com.androidquery.callback.AjaxCallback
 import com.androidquery.callback.AjaxStatus
@@ -16,9 +18,15 @@ open class MealManager(context: Context) {
     val url = "https://www.game.hs.kr/~game/2013/inner.php?sMenu=E4100&date="
     val url_food = "table.foodbox tbody tr"
     var aq: AQuery
+    var pref: SharedPreferences? = null
+    var edit: SharedPreferences.Editor? = null
+    val context: Context
 
     init {
         aq = AQuery(context)
+        pref = context.getSharedPreferences("KGMealChoice", Context.MODE_PRIVATE)
+        edit = pref!!.edit()
+        this.context = context
     }
 
     open class MealData {
@@ -63,7 +71,7 @@ open class MealManager(context: Context) {
     // 1. 아침
     // 2. 점심
     // 3. 저녁
-    fun getMeal(date: String, day: Int, mealDay: Int = -1, callback: ((md: MealData, time: Int) -> Unit)) {
+    fun getMeal(date: String, day: Int, mealDay: Int = -1, callback: ((md: MealData?, time: Int?, success: Boolean) -> Unit)) {
         Thread {
             try {
                 var newUrl = url + date
@@ -110,8 +118,10 @@ open class MealManager(context: Context) {
 
                             meal.mealMonthDay = day_contents
 
-                            callback.invoke(meal, meal_time_counter)
+                            callback.invoke(meal, meal_time_counter, true)
                             meal_time_counter += 1
+                        } else {
+                            callback.invoke(null, null, false)
                         }
                     }
                 }, 0)
@@ -121,7 +131,7 @@ open class MealManager(context: Context) {
         }.start()
     }
 
-    fun getChoice(date: String, time: Int, callback: (good: Int, bad: Int) -> Unit) {
+    fun getChoice(date: String, time: Int, callback: (good: Int?, bad: Int?) -> Unit) {
         aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_getMeal.php?KG_CONTENTS_DATE=" + date, JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
             override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
                 if (`object` != null) {
@@ -132,16 +142,25 @@ open class MealManager(context: Context) {
         })
     }
 
-    fun setChoice(date: String, time: Int, choice: Int, callback: (good: Int, bad: Int) -> Unit) {
-        aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_setMeal.php?KG_CONTENTS_DATE=" + date +
-                "&KG_CONTENTS_TIME=" + time.toString() +
-                "&KG_CONTENTS_CHOICE=" + choice.toString(), JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
-            override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
-                if (`object` != null) {
-                    callback.invoke((`object`["good"] as String).toInt(), (`object`["bad"] as String).toInt())
+    fun setChoice(date: String, time: Int, choice: Int, callback: (good: Int?, bad: Int?) -> Unit) {
+        val kgmealdatachoice = date + time.toString()
+        val kgmealresult = pref!!.getBoolean(kgmealdatachoice, false)
+        if (!kgmealresult) {
+            aq.ajax("http://junsueg5737.dothome.co.kr/KGMaster/KGMaster_setMeal.php?KG_CONTENTS_DATE=" + date +
+                    "&KG_CONTENTS_TIME=" + time.toString() +
+                    "&KG_CONTENTS_CHOICE=" + choice.toString(), JSONObject().javaClass, object : AjaxCallback<JSONObject>() {
+                override fun callback(url: String?, `object`: JSONObject?, status: AjaxStatus?) {
+                    if (`object` != null) {
+                        callback.invoke((`object`["good"] as String).toInt(), (`object`["bad"] as String).toInt())
+                        edit!!.putBoolean(kgmealdatachoice, true)
+                        edit!!.commit()
+                        Toast.makeText(context, kgmealdatachoice + " 에 투표해주셔서 감사합니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            Toast.makeText(context, "이미 투표하셨습니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun String.splitKeeping(str: String): List<String> {

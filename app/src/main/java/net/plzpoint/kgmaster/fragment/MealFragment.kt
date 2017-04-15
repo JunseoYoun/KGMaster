@@ -2,7 +2,11 @@ package net.plzpoint.kgmaster.fragment
 
 import android.app.Fragment
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -101,6 +105,8 @@ class MealFragment : Fragment() {
     var mMealListView: ListView? = null
     var mMealListViewAdapter: MealAdapter? = null
     var mealManager: MealManager? = null
+
+    var noMealLayout: LinearLayout? = null
     var mealProgress: ProgressBar? = null
 
     var dayNum = 0
@@ -114,6 +120,10 @@ class MealFragment : Fragment() {
     var simpleDateFormat = SimpleDateFormat("yyyy-MM")
     var calendar = Calendar.getInstance()
 
+    // 오른쪽 : true
+    // 왼쪽 : false
+    var backupDayButton = false
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Initialize
         val mInflater = inflater!!.inflate(R.layout.kg_meal_fragment, container, false)
@@ -124,12 +134,22 @@ class MealFragment : Fragment() {
         aq = AQuery(activity.applicationContext)
         mealManager = MealManager(activity.applicationContext)
         mealProgress = mInflater!!.findViewById(R.id.kg_meal_progress) as ProgressBar
+        noMealLayout = mInflater!!.findViewById(R.id.kg_meal_no_meal) as LinearLayout
 
         todayCal()
         getMeal()
 
-        mealProgress!!.visibility = View.VISIBLE
-        mMealListView!!.visibility = View.INVISIBLE
+        MainActivity.Instance.instance!!.kg_button_layout!!.visibility = View.VISIBLE
+        MainActivity.Instance.instance!!.kg_button_left!!.setOnClickListener {
+            yesterdayCal()
+            getMeal()
+            backupDayButton = false
+        }
+        MainActivity.Instance.instance!!.kg_button_right!!.setOnClickListener {
+            tomorrowCal()
+            getMeal()
+            backupDayButton = true
+        }
 
         return mInflater
     }
@@ -175,6 +195,13 @@ class MealFragment : Fragment() {
         minDay -= 1
         if (minDay < 1) {
             minMonth -= 1
+            month = minMonth.toString()
+            masterDay = year.plus("-").plus(month).plus("-").plus(day)
+            val date = simpleDateFormat.parse(masterDay)
+            calendar.time = date
+            dayNum = calendar.get(Calendar.DAY_OF_WEEK) - 1
+            minDay = calendar.getMaximum(Calendar.DAY_OF_MONTH)
+
             if (minMonth < 1) {
                 minMonth = 12
                 minYear -= 1
@@ -189,54 +216,74 @@ class MealFragment : Fragment() {
 
     fun masterCal() {
         masterDay = year.plus("-").plus(month).plus("-").plus(day)
-        Log.i("Master Day", masterDay)
-
         simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
         // 특정날자 요일
         val date = simpleDateFormat.parse(masterDay)
         calendar.time = date
         dayNum = calendar.get(Calendar.DAY_OF_WEEK) - 1
     }
 
-    fun setMealChoice(data: MealManager.MealData, good: Int, bad: Int) {
-        data.goodChoice = good
-        data.badChoice = bad
+    fun setMealChoice(data: MealManager.MealData?, good: Int?, bad: Int?) {
+        data!!.goodChoice = good!!
+        data!!.badChoice = bad!!
     }
 
     fun getMeal() {
         // Get Meals
         mMealListViewAdapter!!.meals.clear()
-        mealManager!!.getMeal(masterDay, dayNum) { md, time ->
-            // Good
-            md.goodCallback = object : View.OnClickListener {
-                override fun onClick(p0: View?) {
-                    mealManager!!.setChoice(masterDay, time, 1) { good, bad ->
-                        setMealChoice(md, good, bad)
-                        mMealListViewAdapter!!.notifyDataSetChanged()
-                    }
-                }
-            }
-            // Bad
-            md.badCallback = object : View.OnClickListener {
-                override fun onClick(p0: View?) {
-                    mealManager!!.setChoice(masterDay, time, 0) { good, bad ->
-                        setMealChoice(md, good, bad)
-                        mMealListViewAdapter!!.notifyDataSetChanged()
-                    }
-                }
-            }
+        mMealListViewAdapter!!.notifyDataSetChanged()
 
-            mealManager!!.getChoice(masterDay, time, { good, bad ->
-                setMealChoice(md, good, bad)
+        mealProgress!!.visibility = View.VISIBLE
+        mMealListView!!.visibility = View.INVISIBLE
+        noMealLayout!!.visibility = View.INVISIBLE
+
+        mealManager!!.getMeal(masterDay, dayNum) { md, time, success ->
+            if (success) {
+                // Good
+                md!!.goodCallback = object : View.OnClickListener {
+                    override fun onClick(p0: View?) {
+                        mealManager!!.setChoice(masterDay, time!!, 1) { good, bad ->
+                            setMealChoice(md, good, bad)
+                            mMealListViewAdapter!!.notifyDataSetChanged()
+                        }
+                    }
+                }
+                // Bad
+                md.badCallback = object : View.OnClickListener {
+                    override fun onClick(p0: View?) {
+                        mealManager!!.setChoice(masterDay, time!!, 0) { good, bad ->
+                            setMealChoice(md, good, bad)
+                            mMealListViewAdapter!!.notifyDataSetChanged()
+                        }
+                    }
+                }
+
+                val process = Handler(Looper.getMainLooper())
+                process.postDelayed(Runnable {
+                    mealManager!!.getChoice(masterDay, time!!, { good, bad ->
+                        setMealChoice(md, good, bad)
+                        mMealListViewAdapter!!.notifyDataSetChanged()
+                    })
+                }, 500)
+
+                mealProgress!!.visibility = View.INVISIBLE
+                noMealLayout!!.visibility = View.INVISIBLE
+                mMealListView!!.visibility = View.VISIBLE
+                mMealListViewAdapter!!.meals.add(md)
                 mMealListViewAdapter!!.notifyDataSetChanged()
-            })
-
-            mealProgress!!.visibility = View.INVISIBLE
-            mMealListView!!.visibility = View.VISIBLE
-            mMealListViewAdapter!!.meals.add(md)
-            mMealListViewAdapter!!.notifyDataSetChanged()
-            MainActivity.Instance.instance!!.main_title!!.text = md.mealMonthDay
+                MainActivity.Instance.instance!!.main_title!!.text = md!!.mealMonthDay
+                MainActivity.Instance.instance!!.kg_button_right!!.visibility = View.VISIBLE
+                MainActivity.Instance.instance!!.kg_button_left!!.visibility = View.VISIBLE
+            } else {
+                mealProgress!!.visibility = View.INVISIBLE
+                mMealListView!!.visibility = View.INVISIBLE
+                noMealLayout!!.visibility = View.VISIBLE
+                MainActivity.Instance.instance!!.main_title!!.text = "No 급식"
+                if (backupDayButton)
+                    MainActivity.Instance.instance!!.kg_button_right!!.visibility = View.INVISIBLE
+                else
+                    MainActivity.Instance.instance!!.kg_button_left!!.visibility = View.INVISIBLE
+            }
         }
     }
 }

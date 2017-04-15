@@ -22,7 +22,7 @@ class NewsFragment : Fragment() {
         val mInflater = inflater!!.inflate(R.layout.kg_news_fragment, container, false)
 
         MainActivity.Instance.instance!!.main_title!!.text = "뉴스"
-
+        MainActivity.Instance.instance!!.kg_button_layout!!.visibility = View.INVISIBLE
         return mInflater
     }
 }

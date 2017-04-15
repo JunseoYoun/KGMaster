@@ -114,6 +114,7 @@ class ScheduleFragment : Fragment() {
         getSchedule()
 
         MainActivity.Instance.instance!!.main_title!!.text = "일정"
+        MainActivity.Instance.instance!!.kg_button_layout!!.visibility = View.INVISIBLE
 
         return mInflater
     }

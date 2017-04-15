@@ -171,6 +171,7 @@ class NoticeFragment : Fragment() {
         noticeList!!.adapter = noticeAdapter
 
         MainActivity.Instance.instance!!.main_title!!.text = "공지"
+        MainActivity.Instance.instance!!.kg_button_layout!!.visibility = View.INVISIBLE
 
         getNotice()
 

@@ -63,21 +63,23 @@ class MealWidget : AppWidgetProvider() {
             views.setTextColor(R.id.kg_meal_widget_day2, Color.GRAY)
             views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
             views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-            mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time ->
-                val mealsText: CharSequence =
-                        md.data0 + plusText +
-                                md.data1 + plusText +
-                                md.data2 + plusText +
-                                md.data3 + plusText +
-                                md.data4 + plusText +
-                                md.data5
+            mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time, success ->
+                if (success) {
+                    val mealsText: CharSequence =
+                            md!!.data0 + plusText +
+                                    md.data1 + plusText +
+                                    md.data2 + plusText +
+                                    md.data3 + plusText +
+                                    md.data4 + plusText +
+                                    md.data5
 
-                views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
-                views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
-                views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
-                views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
+                    views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
+                    views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
+                    views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
+                    views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
 
-                appWidgetManager.updateAppWidget(appWidgetId, views)
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                }
             }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -128,20 +130,22 @@ class MealWidget : AppWidgetProvider() {
 
         views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.INVISIBLE)
         views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.VISIBLE)
-        mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time ->
-            val mealsText: CharSequence =
-                    md.data0 + plusText +
-                            md.data1 + plusText +
-                            md.data2 + plusText +
-                            md.data3 + plusText +
-                            md.data4 + plusText +
-                            md.data5
+        mealManager!!.getMeal(masterDay, dayOfWeek, mealDay) { md, time, success ->
+            if (success) {
+                val mealsText: CharSequence =
+                        md!!.data0 + plusText +
+                                md.data1 + plusText +
+                                md.data2 + plusText +
+                                md.data3 + plusText +
+                                md.data4 + plusText +
+                                md.data5
 
-            views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
-            views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
-            views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
-            views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
-            appWidgetManager.updateAppWidget(componentName, views)
+                views.setViewVisibility(R.id.kg_meal_widget_meals_layout, View.VISIBLE)
+                views.setViewVisibility(R.id.kg_meal_widget_progressbar_layout, View.INVISIBLE)
+                views.setTextViewText(R.id.kg_meal_widget_meals, mealsText)
+                views.setTextViewText(R.id.kg_meal_widget_mealMonthDay, md.mealMonthDay)
+                appWidgetManager.updateAppWidget(componentName, views)
+            }
         }
         appWidgetManager.updateAppWidget(componentName, views)
     }

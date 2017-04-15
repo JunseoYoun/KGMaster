@@ -12,6 +12,9 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import net.plzpoint.kgmaster.R
 import net.plzpoint.kgmaster.fragment.MealFragment
@@ -33,6 +36,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var fragmentTransaction: FragmentTransaction? = null
     var main_title: TextView? = null
 
+    var kg_button_layout: RelativeLayout? = null
+    var kg_button_left: ImageView? = null
+    var kg_button_right: ImageView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -52,6 +59,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView.setNavigationItemSelectedListener(this)
 
         main_title = findViewById(R.id.main_title) as TextView
+        kg_button_layout = findViewById(R.id.kg_button_layout) as RelativeLayout
+        kg_button_layout!!.visibility = View.INVISIBLE
+
+        kg_button_left = findViewById(R.id.kg_button_left) as ImageView
+        kg_button_right = findViewById(R.id.kg_button_right) as ImageView
 
         val fm: FragmentManager = fragmentManager
         fragmentTransaction = fm.beginTransaction()
