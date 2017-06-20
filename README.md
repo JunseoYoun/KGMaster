@@ -9,3 +9,7 @@
 ### Tool
 - Android Studio 2.2
 - Kotlin 1.0.7
+
+----
+
+급식,공지,일정,뉴스
